@@ -2,25 +2,8 @@
 <html lang="cs">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-<title>Garance — Auto Hájek</title>
-
-<!-- PWA -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#061629">
-<meta name="mobile-web-app-capable" content="yes">
-
-<!-- iOS PWA -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Garance">
-<link rel="apple-touch-icon" href="icon-192.png">
-<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
-<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
-
-<!-- Standard icon -->
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>FOTO • GARANCE — Auto Hájek</title>
 <style>
   :root {
     --navy: #0A2540;
@@ -84,7 +67,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 14px 18px 6px;
+    padding: 26px 18px 6px;
     font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
     font-size: 12px;
     letter-spacing: 0.15em;
@@ -613,9 +596,6 @@
       inset: 0;
       display: flex;
       flex-direction: column;
-      padding-top: env(safe-area-inset-top);
-      padding-left: env(safe-area-inset-left);
-      padding-right: env(safe-area-inset-right);
     }
   }
 </style>
@@ -1106,9 +1086,9 @@
   function togglePlay() {
     if (current === total - 1 && !playing && playBtn.innerHTML.includes('ZNOVU')) {
       segments.forEach(s => s.classList.remove('done', 'active', 'paused'));
+      go(0);
       playing = true;
       playBtn.innerHTML = '⏸ PAUZA';
-      go(0);
       return;
     }
     playing = !playing;
@@ -1138,15 +1118,6 @@
 
   updateCounter();
   startTimer();
-
-  // PWA: Service Worker registration for offline support
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(reg => console.log('SW registered:', reg.scope))
-        .catch(err => console.log('SW registration failed:', err));
-    });
-  }
 </script>
 </body>
 </html>
