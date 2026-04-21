@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>Garance — Auto Hájek</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#061629">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- iOS PWA -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Garance">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
+
+<!-- Standard icon -->
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<style>
+  :root {
+    --navy: #0A2540;
+    --navy-deep: #061629;
+    --orange: #FF6B1A;
+    --orange-soft: #FFB088;
+    --ink: #0E1A2B;
+    --paper: #F4F1EC;
+    --line: rgba(255,255,255,0.12);
+    --green: #4AD295;
+    --red: #FF5263;
+    --amber: #FFC857;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--navy-deep);
+    color: var(--paper);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    inset: 0;
+  }
+  .progress-wrap {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    gap: 3px;
+    padding: 10px 14px 0;
+    z-index: 50;
+  }
+  .progress-seg {
+    flex: 1;
+    height: 2px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-seg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--orange);
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+  .progress-seg.done::after { transform: scaleX(1); }
+  .progress-seg.active::after {
+    animation: fill var(--dur, 16s) linear forwards;
+  }
+  .progress-seg.paused::after { animation-play-state: paused; }
+  @keyframes fill { to { transform: scaleX(1); } }
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 26px 18px 6px;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+    z-index: 40;
+    flex-shrink: 0;
+  }
+  .topbar .brand { display:flex; align-items:center; gap: 8px; }
+  .topbar .brand .dot { width:6px; height:6px; background: var(--orange); border-radius: 50%; box-shadow: 0 0 8px var(--orange); }
+  .topbar .counter { font-weight: 700; color: var(--paper); }
+  .stage {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 20px 22px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .slide::-webkit-scrollbar { display: none; }
+  .slide.active { opacity: 1; pointer-events: auto; }
+  .eyebrow {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: var(--orange);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .eyebrow::before {
+    content:'';
+    width: 22px;
+    height: 1px;
+    background: var(--orange);
+  }
+  h1.title {
+    font-family: 'Arial Narrow', 'Helvetica Neue Condensed', 'Impact', system-ui, sans-serif;
+    font-weight: 900;
+    font-size: clamp(28px, 8vw, 42px);
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    flex-shrink: 0;
+  }
+  h1.title em { font-style: normal; color: var(--orange); }
+  .s-title {
+    justify-content: space-between;
+    background:
+      radial-gradient(ellipse at 80% 20%, rgba(255,107,26,0.22), transparent 55%),
+      radial-gradient(ellipse at 20% 80%, rgba(10,37,64,0.8), transparent 50%),
+      var(--navy-deep);
+  }
+  .s-title .hero-num {
+    font-family: 'Arial Narrow', 'Helvetica Neue Condensed', 'Impact', system-ui, sans-serif;
+    font-weight: 900;
+    font-size: clamp(180px, 55vw, 300px);
+    line-height: 0.75;
+    color: transparent;
+    -webkit-text-stroke: 2px rgba(255,255,255,0.12);
+    letter-spacing: -0.04em;
+    position: absolute;
+    top: 45%;
+    right: -30px;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+  .s-title .title-main { margin-top: auto; position: relative; z-index: 2; }
+  .s-title .kicker {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: var(--orange);
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .s-title h1.title { font-size: clamp(44px, 13vw, 68px); line-height: 0.88; }
+  .s-title .subline {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+  }
+  .s-title .subline strong { color: var(--paper); font-weight: 700; }
+  .why-row { display: flex; gap: 14px; margin-bottom: 12px; align-items: center; }
+  .why-num {
+    font-family: 'Arial Narrow', 'Helvetica Neue Condensed', 'Impact', system-ui, sans-serif;
+    font-weight: 900;
+    font-size: 68px;
+    line-height: 0.85;
+    color: var(--orange);
+  }
+  .why-body {
+    flex: 1;
+    font-size: 14.5px;
+    line-height: 1.4;
+    padding-top: 2px;
+  }
+  .why-body strong { color: var(--paper); }
+  .why-list {
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .why-list-item {
+    display: flex;
+    gap: 10px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.04);
+    border-left: 2px solid var(--orange);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .why-list-item .ico {
+    flex-shrink: 0;
+    width: 14px;
+    color: var(--orange);
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-weight: 700;
+  }
+  .why-foot {
+    margin-top: auto;
+    padding: 12px 14px;
+    background: rgba(255,107,26,0.1);
+    border-left: 3px solid var(--orange);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .why-foot strong { color: var(--orange); }
+  .photo-frame {
+    margin: 4px 0 12px;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    background: #14253D;
+    border: 1px solid var(--line);
+    height: 150px;
+    flex-shrink: 0;
+  }
+  .photo-frame svg { width: 100%; height: 100%; display: block; }
+  .photo-frame .corner {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--orange);
+  }
+  .photo-frame .corner.tl { top: 8px; left: 8px; border-right:none; border-bottom:none; }
+  .photo-frame .corner.tr { top: 8px; right: 8px; border-left:none; border-bottom:none; }
+  .photo-frame .corner.bl { bottom: 8px; left: 8px; border-right:none; border-top:none; }
+  .photo-frame .corner.br { bottom: 8px; right: 8px; border-left:none; border-top:none; }
+  .photo-frame .rec-tag {
+    position: absolute;
+    top: 12px;
+    left: 36px;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 10px;
+    color: var(--red);
+    letter-spacing: 0.1em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .photo-frame .rec-tag::before {
+    content:'';
+    width: 6px; height: 6px;
+    background: var(--red);
+    border-radius: 50%;
+    animation: pulse 1.2s infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  .photo-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+  .photo-step .step {
+    font-family: 'Arial Narrow', 'Helvetica Neue Condensed', 'Impact', system-ui, sans-serif;
+    font-weight: 900;
+    font-size: 46px;
+    line-height: 0.8;
+    color: var(--orange);
+    flex-shrink: 0;
+  }
+  .photo-step .step-label { flex: 1; padding-top: 2px; }
+  .photo-step .step-label .t {
+    font-family: 'Arial Narrow', 'Helvetica Neue Condensed', 'Impact', system-ui, sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    line-height: 1;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .photo-step .step-label .d {
+    font-size: 13px;
+    color: rgba(244,241,236,0.85);
+    line-height: 1.4;
+  }
+  .photo-step .step-label .d strong { color: var(--paper); }
+  .specs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+  }
+  .spec-row {
+    display: flex;
+    gap: 10px;
+    font-size: 14px;
+    line-height: 1.4;
+    align-items: flex-start;
+  }
+  .spec-row .k {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--orange);
+    color: var(--navy-deep);
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+  }
+  .spec-row.ok .k { background: var(--green); }
+  .spec-row.warn .k { background: var(--amber); }
+  .spec-row .v { flex: 1; color: rgba(244,241,236,0.95); }
+  .spec-row .v strong { color: var(--paper); }
+  .label-demo {
+    margin: 0 0 14px;
+    display: flex;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .gar-label {
+    width: 250px;
+    background: #FFD6DC;
+    color: #1a1a1a;
+    border: 2px solid #c41e2f;
+    padding: 10px 12px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+    position: relative;
+    transform: rotate(-1.5deg);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  }
+  .gar-label::before {
+    content: '';
+    position: absolute;
+    top: -6px; left: 10px; right: 10px;
+    height: 6px;
+    background: repeating-linear-gradient(45deg, #c41e2f, #c41e2f 4px, transparent 4px, transparent 8px);
+    opacity: 0.5;
+  }
+  .gar-label h3 {
+    font-family: 'Arial Narrow', 'Helvetica Neue Condensed', 'Impact', system-ui, sans-serif;
+    font-weight: 900;
+    font-size: 18px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #c41e2f;
+    padding-bottom: 4px;
+    margin-bottom: 6px;
+    color: #c41e2f;
+  }
+  .gar-label .field {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 9.5px;
+    padding: 3px 0;
+    border-bottom: 1px dotted rgba(196,30,47,0.3);
+    gap: 8px;
+  }
+  .gar-label .field:last-child { border-bottom: none; }
+  .gar-label .field .lbl { color: #666; text-transform: uppercase; letter-spacing: 0.05em; flex-shrink: 0; }
+  .gar-label .field .val {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-weight: 700;
+    color: #1a1a1a;
+    text-align: right;
+  }
+  .gar-label .field .val.hand {
+    font-family: 'Bradley Hand', 'Snell Roundhand', 'Segoe Script', cursive;
+    font-size: 14px;
+    font-weight: 500;
+    font-style: italic;
+    color: #0055A4;
+    transform: rotate(-1deg);
+    display: inline-block;
+  }
+  .gar-label .field .val.sig {
+    font-family: 'Bradley Hand', 'Snell Roundhand', 'Segoe Script', cursive;
+    font-size: 16px;
+    font-weight: 700;
+    font-style: italic;
+    color: #0055A4;
+    letter-spacing: -0.02em;
+    transform: rotate(-2deg) skewX(-4deg);
+    display: inline-block;
+  }
+  .table-mini {
+    margin: 4px 0 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 10.5px;
+    flex-shrink: 0;
+  }
+  .table-mini .th {
+    display: grid;
+    grid-template-columns: 1.2fr 1.5fr 1fr 0.4fr;
+    gap: 6px;
+    padding: 8px 10px;
+    background: rgba(255,107,26,0.12);
+    color: var(--orange);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--orange);
+  }
+  .table-mini .tr {
+    display: grid;
+    grid-template-columns: 1.2fr 1.5fr 1fr 0.4fr;
+    gap: 6px;
+    padding: 7px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    color: rgba(244,241,236,0.9);
+  }
+  .table-mini .tr:last-child { border-bottom: none; }
+  .table-mini .tr.highlight {
+    background: rgba(74,210,149,0.08);
+    color: var(--green);
+  }
+  .s-dont {
+    background: linear-gradient(180deg, var(--navy-deep) 0%, #1a0a0a 100%);
+  }
+  .s-dont h1.title em { color: var(--red); }
+  .dont-list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .dont-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 12px;
+    background: rgba(255,82,99,0.08);
+    border-left: 3px solid var(--red);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .dont-item .x {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--red);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--red);
+    font-weight: 700;
+    font-size: 13px;
+    margin-top: 1px;
+  }
+  .dont-item strong { color: var(--red); }
+  .s-end {
+    background:
+      radial-gradient(ellipse at 50% 100%, rgba(255,107,26,0.18), transparent 60%),
+      var(--navy-deep);
+    justify-content: space-between;
+  }
+  .check-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 13.5px;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-item .box {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--green);
+    border-radius: 3px;
+    position: relative;
+  }
+  .check-item .box::after {
+    content: '';
+    position: absolute;
+    left: 3px; top: -1px;
+    width: 6px; height: 12px;
+    border: solid var(--green);
+    border-width: 0 2.5px 2.5px 0;
+    transform: rotate(45deg);
+  }
+  .check-item .num {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-weight: 700;
+    font-size: 11px;
+    color: rgba(255,255,255,0.55);
+    width: 18px;
+  }
+  .check-item strong { color: var(--paper); }
+  .s-end .closing {
+    margin-top: 14px;
+    text-align: center;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+  }
+  .s-end .closing .big {
+    font-family: 'Arial Narrow', 'Helvetica Neue Condensed', 'Impact', system-ui, sans-serif;
+    font-weight: 900;
+    font-size: 24px;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+  .s-end .closing .big em { font-style: normal; color: var(--orange); }
+  .s-end .closing .sub {
+    margin-top: 8px;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+  }
+  .controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 18px calc(12px + env(safe-area-inset-bottom));
+    z-index: 40;
+    background: linear-gradient(0deg, rgba(6,22,41,0.95), transparent);
+    flex-shrink: 0;
+  }
+  .ctrl-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid var(--line);
+    color: var(--paper);
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    backdrop-filter: blur(6px);
+  }
+  .ctrl-btn:active { transform: scale(0.96); }
+  .ctrl-btn.play {
+    background: var(--orange);
+    border-color: var(--orange);
+    color: var(--navy-deep);
+    font-weight: 700;
+    padding: 10px 20px;
+  }
+  .tap-zone {
+    position: absolute;
+    top: 60px;
+    bottom: 80px;
+    width: 30%;
+    z-index: 30;
+    cursor: pointer;
+  }
+  .tap-zone.left { left: 0; }
+  .tap-zone.right { right: 0; }
+  @media (min-width: 768px) {
+    body {
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse at center, #0a2540 0%, #000 100%);
+    }
+    .phone-frame {
+      width: 420px;
+      height: 820px;
+      max-height: 95vh;
+      border-radius: 32px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 10px #0a0a0a, 0 0 0 11px #333;
+      background: var(--navy-deep);
+      display: flex;
+      flex-direction: column;
+    }
+  }
+  @media (max-width: 767px) {
+    .phone-frame {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="phone-frame">
+  <div class="progress-wrap" id="progress"></div>
+  <div class="topbar">
+    <div class="brand"><span class="dot"></span><span>AUTO HÁJEK · FORD TRUCKS</span></div>
+    <div id="counterBox"><span class="counter">01</span><span style="opacity:0.4"> / 11</span></div>
+  </div>
+  <div class="stage" id="stage">
+
+    <!-- 1 · TITLE -->
+    <div class="slide s-title active" data-duration="4500">
+      <div class="hero-num">01</div>
+      <div class="title-main">
+        <div class="kicker">PŘIPOMÍNKA · 2–3 MIN</div>
+        <h1 class="title">GARANCE —<br>FOTO, ŠTÍTEK,<br><em>EVIDENCE.</em></h1>
+        <div class="subline">
+          <span>PRO MECHANIKY</span>
+          <span><strong>V. 01 / 2026</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2 · PROČ -->
+    <div class="slide" data-duration="14000">
+      <div class="eyebrow">01 · Proč to děláme</div>
+      <h1 class="title">Bez fotek a štítku —<br><em>bez peněz.</em></h1>
+      <div class="why-row">
+        <div class="why-num">5+2</div>
+        <div class="why-body">
+          <strong>5 povinných fotek</strong> pro F Trucks +<br><strong>garanční štítek</strong> na starý díl +<br><strong>zápis do evidence</strong>.
+        </div>
+      </div>
+      <div class="why-list">
+        <div class="why-list-item"><span class="ico">→</span><span>Vymontovaný ND bez štítku = výrobce ho v garančním skladu <strong>nedohledá</strong>.</span></div>
+        <div class="why-list-item"><span class="ico">→</span><span>F Trucks si může kdykoliv <strong>do 180 dní</strong> vyžádat díl na expertizu.</span></div>
+        <div class="why-list-item"><span class="ico">→</span><span>Chybí zápis v evidenci → pro F Trucks díl <strong>oficiálně neexistuje</strong>.</span></div>
+      </div>
+      <div class="why-foot">
+        <strong>Pravidlo:</strong> pokud na tom pracuješ ty, fotíš a štítkuješ to ty. Přijímací technik ani skladník tě nezachrání.
+      </div>
+    </div>
+
+    <!-- 3 · FOTO 1 KM+MTH -->
+    <div class="slide" data-duration="12000">
+      <div class="eyebrow">02 · Foto 1 z 5</div>
+      <h1 class="title">01 · <em>KM + MTH</em></h1>
+      <div class="photo-frame">
+        <span class="corner tl"></span><span class="corner tr"></span>
+        <span class="corner bl"></span><span class="corner br"></span>
+        <span class="rec-tag">REC · 01/05</span>
+        <svg viewBox="0 0 400 180" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <radialGradient id="glow1" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#1a4d8f" stop-opacity="0.9"/>
+              <stop offset="100%" stop-color="#0a1a2e" stop-opacity="1"/>
+            </radialGradient>
+          </defs>
+          <rect width="400" height="180" fill="url(#glow1)"/>
+          <rect x="40" y="25" width="320" height="130" rx="8" fill="#05121f" stroke="#1a3550" stroke-width="2"/>
+          <circle cx="110" cy="90" r="38" fill="none" stroke="#1e3a5f" stroke-width="3"/>
+          <circle cx="110" cy="90" r="38" fill="none" stroke="#FF6B1A" stroke-width="3" stroke-dasharray="130 239" transform="rotate(-90 110 90)"/>
+          <rect x="70" y="112" width="80" height="20" fill="#000" stroke="#FF6B1A" stroke-width="2"/>
+          <text x="110" y="126" text-anchor="middle" fill="#FF6B1A" font-family="SF Mono, Menlo, monospace" font-size="11" font-weight="700">186 667 KM</text>
+          <text x="110" y="78" text-anchor="middle" fill="#7a96b8" font-family="-apple-system, Segoe UI, sans-serif" font-size="8">ODOMETER</text>
+          <circle cx="290" cy="90" r="38" fill="none" stroke="#1e3a5f" stroke-width="3"/>
+          <circle cx="290" cy="90" r="38" fill="none" stroke="#4AD295" stroke-width="3" stroke-dasharray="75 239" transform="rotate(-90 290 90)"/>
+          <rect x="250" y="112" width="80" height="20" fill="#000" stroke="#4AD295" stroke-width="2"/>
+          <text x="290" y="126" text-anchor="middle" fill="#4AD295" font-family="SF Mono, Menlo, monospace" font-size="11" font-weight="700">3611 MTH</text>
+          <text x="290" y="78" text-anchor="middle" fill="#7a96b8" font-family="-apple-system, Segoe UI, sans-serif" font-size="8">ENGINE HOURS</text>
+          <text x="200" y="47" text-anchor="middle" fill="#7a96b8" font-family="-apple-system, Segoe UI, sans-serif" font-size="8">FORD F-MAX · INFO O VOZIDLE</text>
+        </svg>
+      </div>
+      <div class="photo-step">
+        <div class="step">01</div>
+        <div class="step-label">
+          <div class="t">PŘÍSTROJOVKA</div>
+          <div class="d">Oba údaje <strong>na jednom snímku</strong>. Menu "Informace o motoru" zobrazí obojí najednou.</div>
+        </div>
+      </div>
+      <div class="specs">
+        <div class="spec-row ok"><span class="k">✓</span><span class="v">KM i MTH <strong>čitelné</strong>, v jednom záběru.</span></div>
+        <div class="spec-row warn"><span class="k">!</span><span class="v">Bez odlesku — zaclonit ruku, nepoužívat blesk.</span></div>
+      </div>
+    </div>
+
+    <!-- 4 · FOTO 2 VIN -->
+    <div class="slide" data-duration="12000">
+      <div class="eyebrow">03 · Foto 2 z 5</div>
+      <h1 class="title">02 · <em>VIN</em></h1>
+      <div class="photo-frame">
+        <span class="corner tl"></span><span class="corner tr"></span>
+        <span class="corner bl"></span><span class="corner br"></span>
+        <span class="rec-tag">REC · 02/05</span>
+        <svg viewBox="0 0 400 180" preserveAspectRatio="xMidYMid meet">
+          <rect width="400" height="180" fill="#c41e2f"/>
+          <rect x="80" y="20" width="240" height="140" fill="#f5f2e8" stroke="#000" stroke-width="1"/>
+          <rect x="80" y="20" width="18" height="140" fill="#000"/>
+          <text x="108" y="36" fill="#000" font-family="-apple-system, Segoe UI, sans-serif" font-size="8" font-weight="700">VDO · Zápis o zkoušce tachografu</text>
+          <text x="108" y="50" fill="#555" font-family="-apple-system, Segoe UI, sans-serif" font-size="7">Datum ověření</text>
+          <text x="200" y="50" fill="#000" font-family="SF Mono, Menlo, monospace" font-size="8" font-weight="700">23.2.2024</text>
+          <rect x="103" y="56" width="215" height="26" fill="#FF6B1A" fill-opacity="0.25" stroke="#FF6B1A" stroke-width="2"/>
+          <text x="108" y="68" fill="#555" font-family="-apple-system, Segoe UI, sans-serif" font-size="7">VIN</text>
+          <text x="108" y="79" fill="#000" font-family="SF Mono, Menlo, monospace" font-size="11" font-weight="700">NM0KCXTP6KNL96044</text>
+          <text x="108" y="94" fill="#555" font-family="-apple-system, Segoe UI, sans-serif" font-size="7">Č. tachografu</text>
+          <text x="200" y="94" fill="#000" font-family="SF Mono, Menlo, monospace" font-size="7">10851231</text>
+          <text x="108" y="106" fill="#555" font-family="-apple-system, Segoe UI, sans-serif" font-size="7">Rozměr pneumatik</text>
+          <text x="200" y="106" fill="#000" font-family="SF Mono, Menlo, monospace" font-size="7">315/70R22.5</text>
+          <text x="108" y="118" fill="#555" font-family="-apple-system, Segoe UI, sans-serif" font-size="7">Impulsy</text>
+          <text x="200" y="118" fill="#000" font-family="SF Mono, Menlo, monospace" font-size="7">6339 imp/km</text>
+          <rect x="285" y="42" width="30" height="38" fill="#0055A4" stroke="#000" stroke-width="0.8"/>
+          <text x="300" y="56" text-anchor="middle" fill="#fff" font-family="-apple-system, Segoe UI, sans-serif" font-size="8" font-weight="700">CZ</text>
+          <text x="300" y="67" text-anchor="middle" fill="#fff" font-family="-apple-system, Segoe UI, sans-serif" font-size="8" font-weight="700">K</text>
+          <text x="300" y="77" text-anchor="middle" fill="#fff" font-family="-apple-system, Segoe UI, sans-serif" font-size="7">224</text>
+          <rect x="108" y="130" width="26" height="26" fill="#000"/>
+          <rect x="112" y="134" width="5" height="5" fill="#fff"/>
+          <rect x="122" y="134" width="4" height="4" fill="#fff"/>
+          <rect x="129" y="134" width="3" height="7" fill="#fff"/>
+          <rect x="112" y="145" width="4" height="4" fill="#fff"/>
+          <rect x="119" y="143" width="6" height="3" fill="#fff"/>
+          <rect x="112" y="152" width="7" height="5" fill="#fff"/>
+          <rect x="122" y="150" width="4" height="4" fill="#fff"/>
+          <rect x="129" y="152" width="4" height="5" fill="#fff"/>
+        </svg>
+      </div>
+      <div class="photo-step">
+        <div class="step">02</div>
+        <div class="step-label">
+          <div class="t">VIN — CELÝ</div>
+          <div class="d">Všech <strong>17 znaků</strong>, ostré. Štítek VDO nebo rám vozu. Jeden překlep = vrácený claim.</div>
+        </div>
+      </div>
+      <div class="specs">
+        <div class="spec-row ok"><span class="k">✓</span><span class="v">Celé <strong>NM0KCXTP6KNL96044</strong> — všech 17 znaků.</span></div>
+        <div class="spec-row warn"><span class="k">!</span><span class="v">Ostré, bez odlesku — radši 2 fotky než žádnou čitelnou.</span></div>
+      </div>
+    </div>
+
+    <!-- 5 · FOTO 3 VADA -->
+    <div class="slide" data-duration="12000">
+      <div class="eyebrow">04 · Foto 3 z 5</div>
+      <h1 class="title">03 · <em>Vada na voze</em></h1>
+      <div class="photo-frame">
+        <span class="corner tl"></span><span class="corner tr"></span>
+        <span class="corner bl"></span><span class="corner br"></span>
+        <span class="rec-tag">REC · 03/05</span>
+        <svg viewBox="0 0 400 180" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="metal2" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#4a5561"/>
+              <stop offset="50%" stop-color="#2a3340"/>
+              <stop offset="100%" stop-color="#1a2028"/>
+            </linearGradient>
+          </defs>
+          <rect width="400" height="180" fill="#1a1e24"/>
+          <rect x="90" y="20" width="220" height="55" fill="url(#metal2)" rx="2"/>
+          <circle cx="145" cy="47" r="13" fill="#0a0e14" stroke="#555" stroke-width="1"/>
+          <circle cx="200" cy="47" r="13" fill="#0a0e14" stroke="#555" stroke-width="1"/>
+          <circle cx="255" cy="47" r="13" fill="#0a0e14" stroke="#555" stroke-width="1"/>
+          <ellipse cx="200" cy="120" rx="60" ry="34" fill="none" stroke="#FF5263" stroke-width="3" stroke-dasharray="6 4"/>
+          <rect x="175" y="102" width="50" height="38" fill="url(#metal2)" rx="5"/>
+          <path d="M 183 112 L 194 123 L 188 131 L 205 127 L 214 136" stroke="#FF5263" stroke-width="2" fill="none"/>
+          <path d="M 187 117 L 198 125" stroke="#FF5263" stroke-width="1.5" fill="none"/>
+          <circle cx="198" cy="123" r="2.5" fill="#2a1010"/>
+          <line x1="305" y1="100" x2="260" y2="118" stroke="#FF5263" stroke-width="2"/>
+          <polygon points="258,116 266,118 260,124" fill="#FF5263"/>
+          <rect x="300" y="86" width="78" height="18" fill="#FF5263"/>
+          <text x="339" y="99" text-anchor="middle" fill="#fff" font-family="SF Mono, Menlo, monospace" font-size="9" font-weight="700">VADA</text>
+        </svg>
+      </div>
+      <div class="photo-step">
+        <div class="step">03</div>
+        <div class="step-label">
+          <div class="t">VADA NA VOZIDLE</div>
+          <div class="d">Detail poškození <strong>před demontáží</strong>. Když je díl venku, je pozdě.</div>
+        </div>
+      </div>
+      <div class="specs">
+        <div class="spec-row ok"><span class="k">✓</span><span class="v">Detail vady + kontext (kde je díl umístěn).</span></div>
+        <div class="spec-row"><span class="k">+</span><span class="v">Pokud elektro: foto obrazovky z <strong>FODIT</strong>.</span></div>
+      </div>
+    </div>
+
+    <!-- 6 · FOTO 4 STARÝ+NOVÝ+ZL -->
+    <div class="slide" data-duration="12000">
+      <div class="eyebrow">05 · Foto 4 z 5</div>
+      <h1 class="title">04 · <em>Starý + nový + ZL</em></h1>
+      <div class="photo-frame">
+        <span class="corner tl"></span><span class="corner tr"></span>
+        <span class="corner bl"></span><span class="corner br"></span>
+        <span class="rec-tag">REC · 04/05</span>
+        <svg viewBox="0 0 400 180" preserveAspectRatio="xMidYMid meet">
+          <rect width="400" height="180" fill="#8a8880"/>
+          <circle cx="50" cy="35" r="25" fill="#7a7870" opacity="0.4"/>
+          <circle cx="360" cy="150" r="32" fill="#7a7870" opacity="0.4"/>
+          <rect x="110" y="12" width="180" height="158" fill="#FF6B1A" rx="2"/>
+          <rect x="118" y="24" width="164" height="140" fill="#f5f2e8"/>
+          <rect x="185" y="8" width="30" height="11" fill="#333" rx="2"/>
+          <rect x="130" y="32" width="140" height="9" fill="#2a3340"/>
+          <text x="200" y="39" text-anchor="middle" fill="#fff" font-family="-apple-system, Segoe UI, sans-serif" font-size="6" font-weight="700">ZAKÁZKOVÝ LIST</text>
+          <line x1="130" y1="50" x2="272" y2="50" stroke="#999" stroke-width="0.4"/>
+          <line x1="130" y1="58" x2="272" y2="58" stroke="#999" stroke-width="0.4"/>
+          <line x1="130" y1="66" x2="272" y2="66" stroke="#999" stroke-width="0.4"/>
+          <text x="132" y="48" fill="#555" font-family="-apple-system, Segoe UI, sans-serif" font-size="5">ZL: ZDS10148</text>
+          <text x="132" y="56" fill="#555" font-family="-apple-system, Segoe UI, sans-serif" font-size="5">VIN: NM0KCXTP6KNL96044</text>
+          <text x="132" y="64" fill="#555" font-family="-apple-system, Segoe UI, sans-serif" font-size="5">KM: 186 667 / MTH: 3611</text>
+          <ellipse cx="168" cy="118" rx="21" ry="21" fill="#1a1e24"/>
+          <circle cx="168" cy="118" r="16" fill="#2a3340"/>
+          <circle cx="168" cy="118" r="5" fill="#0a0e14"/>
+          <text x="168" y="152" text-anchor="middle" fill="#2a3340" font-family="SF Mono, Menlo, monospace" font-size="6" font-weight="700">STARÝ</text>
+          <ellipse cx="232" cy="118" rx="21" ry="21" fill="#0a0e14"/>
+          <circle cx="232" cy="118" r="16" fill="#1a2028"/>
+          <circle cx="232" cy="118" r="5" fill="#0a0e14"/>
+          <text x="232" y="152" text-anchor="middle" fill="#2a3340" font-family="SF Mono, Menlo, monospace" font-size="6" font-weight="700">NOVÝ</text>
+        </svg>
+      </div>
+      <div class="photo-step">
+        <div class="step">04</div>
+        <div class="step-label">
+          <div class="t">STARÝ + NOVÝ + ZL</div>
+          <div class="d">Oba díly vedle sebe <strong>na podkladě zakázkového listu</strong>. Jeden záběr, ZL čitelný.</div>
+        </div>
+      </div>
+      <div class="specs">
+        <div class="spec-row ok"><span class="k">✓</span><span class="v">Starý + nový + zakázkový list v jednom záběru.</span></div>
+      </div>
+    </div>
+
+    <!-- 7 · FOTO 5 NOVÝ ND NA VOZE -->
+    <div class="slide" data-duration="12000">
+      <div class="eyebrow">06 · Foto 5 z 5</div>
+      <h1 class="title">05 · <em>Nový ND na voze</em></h1>
+      <div class="photo-frame">
+        <span class="corner tl"></span><span class="corner tr"></span>
+        <span class="corner bl"></span><span class="corner br"></span>
+        <span class="rec-tag">REC · 05/05</span>
+        <svg viewBox="0 0 400 180" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="metal3" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#4a5561"/>
+              <stop offset="50%" stop-color="#2a3340"/>
+              <stop offset="100%" stop-color="#1a2028"/>
+            </linearGradient>
+            <linearGradient id="newpart" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#3a424d"/>
+              <stop offset="100%" stop-color="#1a2028"/>
+            </linearGradient>
+          </defs>
+          <rect width="400" height="180" fill="#15181d"/>
+          <!-- Truck frame/chassis context -->
+          <rect x="60" y="15" width="280" height="50" fill="url(#metal3)" rx="2"/>
+          <circle cx="130" cy="40" r="11" fill="#0a0e14" stroke="#555" stroke-width="1"/>
+          <circle cx="200" cy="40" r="11" fill="#0a0e14" stroke="#555" stroke-width="1"/>
+          <circle cx="270" cy="40" r="11" fill="#0a0e14" stroke="#555" stroke-width="1"/>
+          <!-- Bolts/clean mounting -->
+          <circle cx="100" cy="30" r="3" fill="#888"/>
+          <circle cx="100" cy="50" r="3" fill="#888"/>
+          <circle cx="300" cy="30" r="3" fill="#888"/>
+          <circle cx="300" cy="50" r="3" fill="#888"/>
+          <!-- New part, clean, with highlight ring -->
+          <ellipse cx="200" cy="120" rx="62" ry="36" fill="none" stroke="#4AD295" stroke-width="3" stroke-dasharray="6 4"/>
+          <rect x="175" y="100" width="50" height="42" fill="url(#newpart)" rx="5"/>
+          <rect x="180" y="105" width="40" height="6" fill="#0a0e14" rx="2"/>
+          <circle cx="188" cy="125" r="5" fill="#0a0e14"/>
+          <circle cx="212" cy="125" r="5" fill="#0a0e14"/>
+          <rect x="182" y="136" width="36" height="3" fill="#0a0e14"/>
+          <!-- Cables clean -->
+          <path d="M 225 110 Q 250 120 260 140 Q 265 160 255 175" stroke="#0a0a0a" stroke-width="5" fill="none"/>
+          <path d="M 225 110 Q 250 120 260 140 Q 265 160 255 175" stroke="#4AD295" stroke-width="0.8" fill="none" stroke-dasharray="2 3"/>
+          <!-- Label "OK / NEW" -->
+          <line x1="305" y1="105" x2="262" y2="120" stroke="#4AD295" stroke-width="2"/>
+          <polygon points="260,118 268,120 262,126" fill="#4AD295"/>
+          <rect x="300" y="90" width="80" height="20" fill="#4AD295"/>
+          <text x="340" y="104" text-anchor="middle" fill="#061629" font-family="SF Mono, Menlo, monospace" font-size="9" font-weight="700">NOVÝ ND</text>
+          <!-- Sparkle -->
+          <text x="165" y="100" fill="#4AD295" font-size="14" font-weight="700">✦</text>
+          <text x="240" y="160" fill="#4AD295" font-size="10" font-weight="700">✦</text>
+        </svg>
+      </div>
+      <div class="photo-step">
+        <div class="step">05</div>
+        <div class="step-label">
+          <div class="t">NOVÝ ND NAMONTOVANÝ</div>
+          <div class="d">Nový díl <strong>už usazený na voze</strong>. Dokazuje, že oprava reálně proběhla.</div>
+        </div>
+      </div>
+      <div class="specs">
+        <div class="spec-row ok"><span class="k">✓</span><span class="v">Díl namontovaný, stejný úhel jako u foto 3.</span></div>
+        <div class="spec-row"><span class="k">+</span><span class="v">Ukázat i <strong>kontext</strong> — ať je vidět, kde je to na voze.</span></div>
+      </div>
+    </div>
+
+    <!-- 8 · GARANČNÍ ŠTÍTEK -->
+    <div class="slide" data-duration="16000">
+      <div class="eyebrow">07 · Krok po fotkách</div>
+      <h1 class="title">Starý ND →<br><em>garanční štítek.</em></h1>
+      <div class="label-demo">
+        <div class="gar-label">
+          <h3>Garanční štítek</h3>
+          <div class="field"><span class="lbl">Zakázka č.</span><span class="val">FT-26XXXX</span></div>
+          <div class="field"><span class="lbl">VIN</span><span class="val">...NL96044</span></div>
+          <div class="field"><span class="lbl">Číslo ND</span><span class="val">T228789</span></div>
+          <div class="field"><span class="lbl">Datum</span><span class="val">19.4.2026</span></div>
+          <div class="field"><span class="lbl">Mechanik</span><span class="val hand">Petr Novák</span></div>
+          <div class="field"><span class="lbl">Podpis</span><span class="val sig">P.Novák</span></div>
+        </div>
+      </div>
+      <div class="specs" style="border-top: none; padding-top: 0;">
+        <div class="spec-row"><span class="k">1</span><span class="v">Vyplnit <strong>čitelně, tiskacím</strong>. Podepsat. Nalepit na starý ND.</span></div>
+        <div class="spec-row"><span class="k">2</span><span class="v">ND uložit do <strong>garančního skladu</strong> — ne do šrotu, ne na hromadu.</span></div>
+        <div class="spec-row ok"><span class="k">✓</span><span class="v">Výjimka: díly z <strong>FSA akce</strong> se neukládají, jdou rovnou pryč.</span></div>
+      </div>
+    </div>
+
+    <!-- 9 · EVIDENCE -->
+    <div class="slide" data-duration="16000">
+      <div class="eyebrow">08 · Krok po štítku</div>
+      <h1 class="title">Zápis do<br><em>evidence.</em></h1>
+      <p style="font-size: 13px; line-height: 1.4; color: rgba(244,241,236,0.9); margin-bottom: 10px; flex-shrink: 0;">
+        F Trucks si může <strong>kdykoliv do 180 dní</strong> vyžádat ND na expertizu. Evidence musí být v Excelu dostupná a díl fyzicky k dohledání.
+      </p>
+      <div class="table-mini">
+        <div class="th">
+          <div>ZL</div>
+          <div>ZÁKAZNÍK</div>
+          <div>Č. ND</div>
+          <div>KS</div>
+        </div>
+        <div class="tr">
+          <div>ZDS10145</div>
+          <div>Novotný s.r.o.</div>
+          <div>T228776</div>
+          <div>1</div>
+        </div>
+        <div class="tr highlight">
+          <div>ZDS10148</div>
+          <div>Zavadil D.</div>
+          <div>T228789</div>
+          <div>1</div>
+        </div>
+        <div class="tr">
+          <div>ZDS10151</div>
+          <div>Malina Vrše</div>
+          <div>29834572</div>
+          <div>2</div>
+        </div>
+      </div>
+      <div class="specs" style="border-top: none; padding-top: 0;">
+        <div class="spec-row"><span class="k">1</span><span class="v">Po nalepení štítku → <strong>zápis do evidenčního Excelu</strong>.</span></div>
+        <div class="spec-row"><span class="k">2</span><span class="v">Minimum: <strong>ZL, zákazník, číslo ND, počet ks</strong>.</span></div>
+        <div class="spec-row"><span class="k">3</span><span class="v">Po <strong>180 dnech od proplacení</strong> → odepsat a fyzicky zlikvidovat.</span></div>
+        <div class="spec-row warn"><span class="k">!</span><span class="v">Doklady (ZL, foto, faktura) se archivují <strong>10 let</strong>.</span></div>
+      </div>
+    </div>
+
+    <!-- 10 · DON'T -->
+    <div class="slide s-dont" data-duration="14000">
+      <div class="eyebrow">09 · Pozor</div>
+      <h1 class="title">Co <em>ničí claim</em><br>nejčastěji.</h1>
+      <div class="dont-list">
+        <div class="dont-item">
+          <span class="x">✕</span>
+          <span>Focený <strong>starý díl už vymontovaný</strong> — bez kontextu na voze.</span>
+        </div>
+        <div class="dont-item">
+          <span class="x">✕</span>
+          <span>VIN <strong>rozmazaný</strong>, jen část řetězce.</span>
+        </div>
+        <div class="dont-item">
+          <span class="x">✕</span>
+          <span>Nový díl <strong>bez zakázkového listu</strong> na společném snímku.</span>
+        </div>
+        <div class="dont-item">
+          <span class="x">✕</span>
+          <span>Chybí <strong>foto nového ND na voze</strong> po montáži.</span>
+        </div>
+        <div class="dont-item">
+          <span class="x">✕</span>
+          <span>Starý ND <strong>bez štítku</strong> — F Trucks nedohledá, který claim je který.</span>
+        </div>
+        <div class="dont-item">
+          <span class="x">✕</span>
+          <span><strong>Chybí zápis v evidenci</strong> — i když je ND ve skladu, oficiálně neexistuje.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 11 · KONEČNÝ CHECKLIST -->
+    <div class="slide s-end" data-duration="17000">
+      <div class="eyebrow">10 · Před koncem zakázky</div>
+      <h1 class="title">Zkontroluj:</h1>
+      <div class="check-list">
+        <div class="check-item"><span class="num">01</span><span class="box"></span><span>Foto <strong>KM + MTH</strong></span></div>
+        <div class="check-item"><span class="num">02</span><span class="box"></span><span>Foto <strong>VIN</strong> (17 znaků)</span></div>
+        <div class="check-item"><span class="num">03</span><span class="box"></span><span>Foto <strong>vady na voze</strong></span></div>
+        <div class="check-item"><span class="num">04</span><span class="box"></span><span>Foto <strong>starý + nový + ZL</strong></span></div>
+        <div class="check-item"><span class="num">05</span><span class="box"></span><span>Foto <strong>nového ND na voze</strong></span></div>
+        <div class="check-item"><span class="num">06</span><span class="box"></span><span><strong>Garanční štítek</strong> vyplněný a na dílu</span></div>
+        <div class="check-item"><span class="num">07</span><span class="box"></span><span>Starý ND v <strong>garančním skladu</strong></span></div>
+        <div class="check-item"><span class="num">08</span><span class="box"></span><span>Zápis v <strong>evidenčním Excelu</strong></span></div>
+      </div>
+      <div class="closing">
+        <div class="big">Bez fotky, štítku<br>a zápisu —<br><em>bez peněz.</em></div>
+        <div class="sub">AUTO HÁJEK · FORD TRUCKS · TUKLATY</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="tap-zone left" id="tapLeft"></div>
+  <div class="tap-zone right" id="tapRight"></div>
+  <div class="controls">
+    <button class="ctrl-btn" id="prevBtn">◀ Zpět</button>
+    <button class="ctrl-btn play" id="playBtn">⏸ PAUZA</button>
+    <button class="ctrl-btn" id="nextBtn">Dále ▶</button>
+  </div>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  const counterBox = document.getElementById('counterBox');
+  const progress = document.getElementById('progress');
+  const playBtn = document.getElementById('playBtn');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const tapLeft = document.getElementById('tapLeft');
+  const tapRight = document.getElementById('tapRight');
+
+  for (let i = 0; i < total; i++) {
+    const seg = document.createElement('div');
+    seg.className = 'progress-seg';
+    progress.appendChild(seg);
+  }
+  const segments = progress.querySelectorAll('.progress-seg');
+
+  let current = 0;
+  let playing = true;
+  let timer = null;
+
+  function updateCounter() {
+    counterBox.innerHTML =
+      '<span class="counter">' + String(current + 1).padStart(2, '0') + '</span><span style="opacity:0.4"> / ' + String(total).padStart(2, '0') + '</span>';
+  }
+
+  function go(index) {
+    if (index < 0 || index >= total) return;
+    clearTimeout(timer);
+    slides[current].classList.remove('active');
+    segments[current].classList.remove('active', 'paused');
+    if (index > current) {
+      for (let i = 0; i < index; i++) segments[i].classList.add('done');
+    } else {
+      for (let i = index; i < total; i++) segments[i].classList.remove('done');
+    }
+    current = index;
+    slides[current].classList.add('active');
+    slides[current].scrollTop = 0;
+    updateCounter();
+    if (playing) startTimer();
+  }
+
+  function startTimer() {
+    const duration = parseInt(slides[current].dataset.duration, 10) || 12000;
+    const seg = segments[current];
+    seg.style.setProperty('--dur', (duration/1000) + 's');
+    seg.classList.remove('done', 'paused', 'active');
+    void seg.offsetWidth;
+    seg.classList.add('active');
+    timer = setTimeout(() => {
+      segments[current].classList.add('done');
+      if (current < total - 1) {
+        go(current + 1);
+      } else {
+        playing = false;
+        playBtn.innerHTML = '↻ ZNOVU';
+      }
+    }, duration);
+  }
+
+  function pauseTimer() {
+    clearTimeout(timer);
+    segments[current].classList.add('paused');
+  }
+
+  function togglePlay() {
+    if (current === total - 1 && !playing && playBtn.innerHTML.includes('ZNOVU')) {
+      segments.forEach(s => s.classList.remove('done', 'active', 'paused'));
+      go(0);
+      playing = true;
+      playBtn.innerHTML = '⏸ PAUZA';
+      return;
+    }
+    playing = !playing;
+    if (playing) {
+      playBtn.innerHTML = '⏸ PAUZA';
+      segments[current].classList.remove('paused', 'active');
+      void segments[current].offsetWidth;
+      segments[current].classList.add('active');
+      startTimer();
+    } else {
+      playBtn.innerHTML = '▶ PŘEHRÁT';
+      pauseTimer();
+    }
+  }
+
+  playBtn.addEventListener('click', togglePlay);
+  prevBtn.addEventListener('click', () => { if (current > 0) go(current - 1); });
+  nextBtn.addEventListener('click', () => { if (current < total - 1) go(current + 1); });
+  tapLeft.addEventListener('click', () => { if (current > 0) go(current - 1); });
+  tapRight.addEventListener('click', () => { if (current < total - 1) go(current + 1); });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') prevBtn.click();
+    if (e.key === 'ArrowRight') nextBtn.click();
+    if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+  });
+
+  updateCounter();
+  startTimer();
+
+  // PWA: Service Worker registration for offline support
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => console.log('SW registered:', reg.scope))
+        .catch(err => console.log('SW registration failed:', err));
+    });
+  }
+</script>
+</body>
+</html>
