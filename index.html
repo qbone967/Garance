@@ -411,6 +411,109 @@
     transform: rotate(-2deg) skewX(-4deg);
     display: inline-block;
   }
+
+  /* === Pracovní výkaz === */
+  .work-sheet {
+    width: 280px;
+    background: #f5f2e8;
+    color: #1a1a1a;
+    border: 1px solid #999;
+    padding: 10px 12px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+    position: relative;
+    transform: rotate(-0.8deg);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  }
+  .work-sheet h3 {
+    font-family: 'Arial Narrow', 'Helvetica Neue Condensed', 'Impact', system-ui, sans-serif;
+    font-weight: 900;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #fff;
+    background: #2a3340;
+    padding: 5px 8px;
+    margin: -10px -12px 6px;
+    text-align: center;
+  }
+  .work-sheet .ws-meta {
+    display: flex;
+    justify-content: space-between;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 9px;
+    color: #555;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 5px;
+  }
+  .work-sheet .ws-meta strong { color: #1a1a1a; font-weight: 700; }
+  .work-sheet .ws-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    padding: 2.5px 0;
+    border-bottom: 1px dotted #ccc;
+    color: #1a1a1a;
+  }
+  .work-sheet .ws-row .op { flex: 1; }
+  .work-sheet .ws-row .h {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-weight: 700;
+    color: #555;
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
+  .work-sheet .ws-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    padding: 4px 0 6px;
+    margin-top: 3px;
+    border-top: 1.5px solid #2a3340;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+  .work-sheet .ws-total .h {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    color: #c41e2f;
+  }
+  .work-sheet .ws-sig {
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px solid #ccc;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    gap: 10px;
+  }
+  .work-sheet .ws-sig-box {
+    text-align: center;
+  }
+  .work-sheet .ws-sig-box .lbl {
+    font-size: 7px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+  }
+  .work-sheet .ws-sig-box .name {
+    font-family: 'Bradley Hand', 'Snell Roundhand', 'Segoe Script', cursive;
+    font-size: 16px;
+    font-weight: 700;
+    font-style: italic;
+    color: #0055A4;
+    letter-spacing: -0.02em;
+    transform: rotate(-3deg) skewX(-4deg);
+    display: inline-block;
+    line-height: 1;
+  }
+  .work-sheet .ws-sig-box .sub {
+    font-size: 7px;
+    color: #555;
+    margin-top: 3px;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  }
+
   .table-mini {
     margin: 4px 0 12px;
     background: rgba(255,255,255,0.04);
@@ -624,7 +727,7 @@
   <div class="progress-wrap" id="progress"></div>
   <div class="topbar">
     <div class="brand"><span class="dot"></span><span>AUTO HÁJEK · FORD TRUCKS</span></div>
-    <div id="counterBox"><span class="counter">01</span><span style="opacity:0.4"> / 11</span></div>
+    <div id="counterBox"><span class="counter">01</span><span style="opacity:0.4"> / 12</span></div>
   </div>
   <div class="stage" id="stage">
 
@@ -644,11 +747,11 @@
     <!-- 2 · PROČ -->
     <div class="slide" data-duration="14000">
       <div class="eyebrow">01 · Proč to děláme</div>
-      <h1 class="title">Bez fotek a štítku —<br><em>bez peněz.</em></h1>
+      <h1 class="title">Bez fotek a podpisu —<br><em>bez peněz.</em></h1>
       <div class="why-row">
-        <div class="why-num">5+2</div>
+        <div class="why-num">5+3</div>
         <div class="why-body">
-          <strong>5 povinných fotek</strong> pro F Trucks +<br><strong>garanční štítek</strong> na starý díl +<br><strong>zápis do evidence</strong>.
+          <strong>5 povinných fotek</strong> pro F Trucks +<br><strong>podpis mistra</strong> na pracovním výkazu +<br><strong>garanční štítek</strong> na starý díl +<br><strong>zápis do evidence</strong>.
         </div>
       </div>
       <div class="why-list">
@@ -797,14 +900,14 @@
       </div>
       <div class="specs">
         <div class="spec-row ok"><span class="k">✓</span><span class="v">Detail vady + kontext (kde je díl umístěn).</span></div>
-        <div class="spec-row"><span class="k">+</span><span class="v">Pokud elektro: foto obrazovky z <strong>FODIT</strong>.</span></div>
+        <div class="spec-row"><span class="k">+</span><span class="v">Pokud elektro: foto obrazovky z <strong>FODIT</strong> s viditelným <strong>DATEM</strong> a <strong>ČASEM</strong>.</span></div>
       </div>
     </div>
 
-    <!-- 6 · FOTO 4 STARÝ+NOVÝ+ZL -->
+    <!-- 6 · FOTO 4 STARÝ+NOVÝ+VÝKAZ -->
     <div class="slide" data-duration="12000">
       <div class="eyebrow">05 · Foto 4 z 5</div>
-      <h1 class="title">04 · <em>Starý + nový + ZL</em></h1>
+      <h1 class="title">04 · <em>Starý + nový + výkaz</em></h1>
       <div class="photo-frame">
         <span class="corner tl"></span><span class="corner tr"></span>
         <span class="corner bl"></span><span class="corner br"></span>
@@ -817,11 +920,11 @@
           <rect x="118" y="24" width="164" height="140" fill="#f5f2e8"/>
           <rect x="185" y="8" width="30" height="11" fill="#333" rx="2"/>
           <rect x="130" y="32" width="140" height="9" fill="#2a3340"/>
-          <text x="200" y="39" text-anchor="middle" fill="#fff" font-family="-apple-system, Segoe UI, sans-serif" font-size="6" font-weight="700">ZAKÁZKOVÝ LIST</text>
+          <text x="200" y="39" text-anchor="middle" fill="#fff" font-family="-apple-system, Segoe UI, sans-serif" font-size="6" font-weight="700">PRACOVNÍ VÝKAZ</text>
           <line x1="130" y1="50" x2="272" y2="50" stroke="#999" stroke-width="0.4"/>
           <line x1="130" y1="58" x2="272" y2="58" stroke="#999" stroke-width="0.4"/>
           <line x1="130" y1="66" x2="272" y2="66" stroke="#999" stroke-width="0.4"/>
-          <text x="132" y="48" fill="#555" font-family="-apple-system, Segoe UI, sans-serif" font-size="5">ZL: ZDS10148</text>
+          <text x="132" y="48" fill="#555" font-family="-apple-system, Segoe UI, sans-serif" font-size="5">Č: FT-26XXXX</text>
           <text x="132" y="56" fill="#555" font-family="-apple-system, Segoe UI, sans-serif" font-size="5">VIN: NM0KCXTP6KNL96044</text>
           <text x="132" y="64" fill="#555" font-family="-apple-system, Segoe UI, sans-serif" font-size="5">KM: 186 667 / MTH: 3611</text>
           <ellipse cx="168" cy="118" rx="21" ry="21" fill="#1a1e24"/>
@@ -837,12 +940,12 @@
       <div class="photo-step">
         <div class="step">04</div>
         <div class="step-label">
-          <div class="t">STARÝ + NOVÝ + ZL</div>
-          <div class="d">Oba díly vedle sebe <strong>na podkladě zakázkového listu</strong>. Jeden záběr, ZL čitelný.</div>
+          <div class="t">STARÝ + NOVÝ + VÝKAZ</div>
+          <div class="d">Oba díly vedle sebe <strong>na podkladě pracovního výkazu</strong>. Jeden záběr, výkaz čitelný.</div>
         </div>
       </div>
       <div class="specs">
-        <div class="spec-row ok"><span class="k">✓</span><span class="v">Starý + nový + zakázkový list v jednom záběru.</span></div>
+        <div class="spec-row ok"><span class="k">✓</span><span class="v">Starý + nový + pracovní výkaz v jednom záběru.</span></div>
       </div>
     </div>
 
@@ -910,9 +1013,42 @@
       </div>
     </div>
 
+    <!-- 7 · PRACOVNÍ VÝKAZ -->
+    <div class="slide" data-duration="16000">
+      <div class="eyebrow">07 · Před uzavřením zakázky</div>
+      <h1 class="title">Pracovní výkaz →<br><em>podpis mistra.</em></h1>
+      <div class="label-demo">
+        <div class="work-sheet">
+          <h3>Pracovní výkaz</h3>
+          <div class="ws-meta">
+            <span>Č. zakázky <strong>FT-26XXXX</strong></span>
+            <span>19.4.2026</span>
+          </div>
+          <div class="ws-row"><span class="op">Diagnostika vozidla</span><span class="h">0,4 h</span></div>
+          <div class="ws-row"><span class="op">Demontáž tlumiče přední pravé</span><span class="h">0,8 h</span></div>
+          <div class="ws-row"><span class="op">Montáž nového tlumiče</span><span class="h">0,8 h</span></div>
+          <div class="ws-row"><span class="op">Kontrola geometrie</span><span class="h">0,3 h</span></div>
+          <div class="ws-row"><span class="op">Zkušební jízda</span><span class="h">0,2 h</span></div>
+          <div class="ws-total"><span>Celkem</span><span class="h">2,5 h</span></div>
+          <div class="ws-sig">
+            <div class="ws-sig-box">
+              <div class="lbl">Mistr dílny</div>
+              <div class="name">K.Souček</div>
+              <div class="sub">19.4.2026</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="specs" style="border-top: none; padding-top: 0;">
+        <div class="spec-row"><span class="k">1</span><span class="v">Po dokončení opravy <strong>předat výkaz mistrovi</strong> k podpisu.</span></div>
+        <div class="spec-row warn"><span class="k">!</span><span class="v">Bez podpisu mistra → výkaz <strong>neposílat na F Trucks</strong>.</span></div>
+        <div class="spec-row ok"><span class="k">✓</span><span class="v">Mistři: <strong>Karel Souček</strong> nebo <strong>Petr Procházka</strong>.</span></div>
+      </div>
+    </div>
+
     <!-- 8 · GARANČNÍ ŠTÍTEK -->
     <div class="slide" data-duration="16000">
-      <div class="eyebrow">07 · Krok po fotkách</div>
+      <div class="eyebrow">08 · Krok po fotkách</div>
       <h1 class="title">Starý ND →<br><em>garanční štítek.</em></h1>
       <div class="label-demo">
         <div class="gar-label">
@@ -934,10 +1070,10 @@
 
     <!-- 9 · EVIDENCE -->
     <div class="slide" data-duration="16000">
-      <div class="eyebrow">08 · Krok po štítku</div>
+      <div class="eyebrow">09 · Krok po štítku</div>
       <h1 class="title">Zápis do<br><em>evidence.</em></h1>
       <p style="font-size: 13px; line-height: 1.4; color: rgba(244,241,236,0.9); margin-bottom: 10px; flex-shrink: 0;">
-        F Trucks si může <strong>kdykoliv do 180 dní</strong> vyžádat ND na expertizu. Evidence musí být v Excelu dostupná a díl fyzicky k dohledání.
+        F Trucks si může <strong>kdykoliv do 180 dní</strong> vyžádat ND na expertizu. Evidence musí být v seznamu dostupná a díl fyzicky k dohledání.
       </p>
       <div class="table-mini">
         <div class="th">
@@ -966,7 +1102,7 @@
         </div>
       </div>
       <div class="specs" style="border-top: none; padding-top: 0;">
-        <div class="spec-row"><span class="k">1</span><span class="v">Po nalepení štítku → <strong>zápis do evidenčního Excelu</strong>.</span></div>
+        <div class="spec-row"><span class="k">1</span><span class="v">Po nalepení štítku → <strong>zápis do evidenčního seznamu</strong>.</span></div>
         <div class="spec-row"><span class="k">2</span><span class="v">Minimum: <strong>ZL, zákazník, číslo ND, počet ks</strong>.</span></div>
         <div class="spec-row"><span class="k">3</span><span class="v">Po <strong>180 dnech od proplacení</strong> → odepsat a fyzicky zlikvidovat.</span></div>
         <div class="spec-row warn"><span class="k">!</span><span class="v">Doklady (ZL, foto, faktura) se archivují <strong>10 let</strong>.</span></div>
@@ -975,7 +1111,7 @@
 
     <!-- 10 · DON'T -->
     <div class="slide s-dont" data-duration="14000">
-      <div class="eyebrow">09 · Pozor</div>
+      <div class="eyebrow">10 · Pozor</div>
       <h1 class="title">Co <em>ničí claim</em><br>nejčastěji.</h1>
       <div class="dont-list">
         <div class="dont-item">
@@ -988,11 +1124,15 @@
         </div>
         <div class="dont-item">
           <span class="x">✕</span>
-          <span>Nový díl <strong>bez zakázkového listu</strong> na společném snímku.</span>
+          <span>Nový díl <strong>bez pracovního výkazu</strong> na společném snímku.</span>
         </div>
         <div class="dont-item">
           <span class="x">✕</span>
           <span>Chybí <strong>foto nového ND na voze</strong> po montáži.</span>
+        </div>
+        <div class="dont-item">
+          <span class="x">✕</span>
+          <span><strong>Pracovní výkaz bez podpisu mistra dílny</strong> — F Trucks ho nepřijme.</span>
         </div>
         <div class="dont-item">
           <span class="x">✕</span>
@@ -1007,20 +1147,21 @@
 
     <!-- 11 · KONEČNÝ CHECKLIST -->
     <div class="slide s-end" data-duration="17000">
-      <div class="eyebrow">10 · Před koncem zakázky</div>
+      <div class="eyebrow">11 · Před koncem zakázky</div>
       <h1 class="title">Zkontroluj:</h1>
       <div class="check-list">
         <div class="check-item"><span class="num">01</span><span class="box"></span><span>Foto <strong>KM + MTH</strong></span></div>
         <div class="check-item"><span class="num">02</span><span class="box"></span><span>Foto <strong>VIN</strong> (17 znaků)</span></div>
         <div class="check-item"><span class="num">03</span><span class="box"></span><span>Foto <strong>vady na voze</strong></span></div>
-        <div class="check-item"><span class="num">04</span><span class="box"></span><span>Foto <strong>starý + nový + ZL</strong></span></div>
+        <div class="check-item"><span class="num">04</span><span class="box"></span><span>Foto <strong>starý + nový + výkaz</strong></span></div>
         <div class="check-item"><span class="num">05</span><span class="box"></span><span>Foto <strong>nového ND na voze</strong></span></div>
-        <div class="check-item"><span class="num">06</span><span class="box"></span><span><strong>Garanční štítek</strong> vyplněný a na dílu</span></div>
-        <div class="check-item"><span class="num">07</span><span class="box"></span><span>Starý ND v <strong>garančním skladu</strong></span></div>
-        <div class="check-item"><span class="num">08</span><span class="box"></span><span>Zápis v <strong>evidenčním Excelu</strong></span></div>
+        <div class="check-item"><span class="num">06</span><span class="box"></span><span><strong>Pracovní výkaz</strong> podepsaný mistrem dílny</span></div>
+        <div class="check-item"><span class="num">07</span><span class="box"></span><span><strong>Garanční štítek</strong> vyplněný a na dílu</span></div>
+        <div class="check-item"><span class="num">08</span><span class="box"></span><span>Starý ND v <strong>garančním skladu</strong></span></div>
+        <div class="check-item"><span class="num">09</span><span class="box"></span><span>Zápis v <strong>evidenčním seznamu</strong></span></div>
       </div>
       <div class="closing">
-        <div class="big">Bez fotky, štítku<br>a zápisu —<br><em>bez peněz.</em></div>
+        <div class="big">Bez fotky, výkazu,<br>štítku a zápisu —<br><em>bez peněz.</em></div>
         <div class="sub">AUTO HÁJEK · FORD TRUCKS · TUKLATY</div>
       </div>
     </div>
