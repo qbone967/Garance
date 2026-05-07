@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AUTO HÁJEK — Správa klíčů</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1a1c1e;--sur:#23262a;--sur2:#2c2f34;--brd:#3a3e45;
+  --n:#f59e0b;--p:#3b82f6;--s:#ef4444;
+  --txt:#e8eaed;--mut:#888d96;--grn:#22c55e;
+}
+body{font-family:'Barlow',system-ui,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;font-size:14px}
+input:focus,select:focus{outline:none;border-color:var(--n)!important}
+header{background:var(--sur);border-bottom:2px solid var(--brd);padding:10px 24px;display:flex;align-items:center;gap:14px;height:57px;position:sticky;top:0;z-index:100}
+.logo{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--n);white-space:nowrap}
+.logo em{color:var(--mut);font-style:normal;font-size:12px;font-weight:400;margin-left:8px}
+.sw{position:relative;flex:1;max-width:480px}
+.sw svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--mut);pointer-events:none;z-index:2}
+.sw input{width:100%;background:var(--bg);border:1.5px solid var(--brd);border-radius:6px;color:var(--txt);padding:8px 12px 8px 34px;font-size:13px;font-family:'Barlow',sans-serif}
+.drop{position:absolute;top:calc(100% + 4px);left:0;width:100%;min-width:440px;background:var(--sur);border:1.5px solid var(--brd);border-radius:8px;z-index:500;max-height:420px;overflow-y:auto;display:none;box-shadow:0 8px 28px rgba(0,0,0,.6)}
+.drop.open{display:block}
+.di{display:flex;align-items:center;gap:9px;padding:8px 13px;cursor:pointer;border-bottom:1px solid var(--brd)}
+.di:last-child{border-bottom:none}
+.di:hover,.di.act{background:var(--sur2)}
+.di-rz{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;min-width:90px}
+.di-sub{font-size:11px;color:var(--mut);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kb{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:12px;padding:1px 7px;border-radius:3px;flex-shrink:0}
+.kb.cN{background:var(--n);color:#000}.kb.cP{background:var(--p);color:#fff}.kb.cS{background:var(--s);color:#fff}
+.kb.cX{background:var(--sur2);color:var(--mut);border:1px solid var(--brd)}
+.hbtns{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
+.btn{padding:7px 13px;border-radius:6px;border:none;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.bp{background:var(--n);color:#000}.bp:hover{background:#fbbf24}
+.bg{background:transparent;border:1.5px solid var(--brd);color:var(--txt)}.bg:hover{border-color:var(--mut)}
+.bsv{background:transparent;border:1.5px solid var(--grn);color:var(--grn)}.bsv:hover{background:var(--grn);color:#000}
+.bdel{background:transparent;border:1.5px solid var(--s);color:var(--s)}.bdel:hover{background:var(--s);color:#fff}
+.bsm{padding:5px 9px;font-size:12px}
+.main{padding:18px 24px;overflow-y:auto;height:calc(100vh - 57px)}
+.stats{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.sc{background:var(--sur2);border:1px solid var(--brd);border-radius:6px;padding:5px 14px;text-align:center}
+.sc .v{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;line-height:1}
+.sc .l{font-size:10px;color:var(--mut);margin-top:2px}
+.sc.sN .v{color:var(--n)}.sc.sP .v{color:var(--p)}.sc.sS .v{color:var(--s)}
+.cabs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:900px){.cabs{grid-template-columns:1fr}}
+.cab{background:var(--sur2);border:2px solid var(--brd);border-radius:10px;overflow:hidden}
+.chdr{display:flex;align-items:center;gap:9px;padding:9px 13px;border-bottom:2px solid var(--brd)}
+.cl{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800}
+.cl.cN{color:var(--n)}.cl.cP{color:var(--p)}.cl.cS{color:var(--s)}
+.cn{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600}
+.cc{margin-left:auto;font-size:11px;color:var(--mut)}
+.cbody{padding:8px 8px 4px}
+.cnums{display:flex;gap:3px;padding-left:20px;margin-bottom:2px}
+.cnum{flex:1;text-align:center;font-size:9px;color:#444;font-family:'Barlow Condensed',sans-serif}
+.hrow{display:flex;align-items:center;margin-bottom:5px}
+.rl{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--mut);width:20px;text-align:center;flex-shrink:0}
+.hooks{display:flex;gap:3px;flex:1}
+.hook{flex:1;height:50px;background:#22252a;border:1.5px solid var(--brd);border-radius:4px;position:relative;cursor:pointer;transition:border-color .15s,background .15s;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:2px;min-width:0}
+.hook:hover{border-color:#666}
+.hn{font-size:8px;color:#3a3a3a;line-height:1}
+.hook.occ{background:#1d1800;border-color:#6b4200}
+.hook.occ.hP{background:#0a1220;border-color:#1a3870}
+.hook.occ.hS{background:#1a0808;border-color:#6a1818}
+.hook.occ .hn{color:#555}
+.hook.lit{border-color:#fff!important;box-shadow:0 0 0 2px rgba(255,255,255,.4)}
+@keyframes pp{0%{box-shadow:0 0 0 0 rgba(255,255,255,.7)}100%{box-shadow:0 0 0 10px rgba(255,255,255,0)}}
+.hook.lit{animation:pp .6s ease}
+.ksv{width:20px;height:20px;margin-bottom:1px}
+.hook.occ .kfill{fill:var(--n)}.hook.occ.hP .kfill{fill:var(--p)}.hook.occ.hS .kfill{fill:var(--s)}
+.dot{position:absolute;top:-2px;right:-2px;width:6px;height:6px;border-radius:50%;background:var(--n)}
+.hook.occ.hP .dot{background:var(--p)}.hook.occ.hS .dot{background:var(--s)}
+.tip{position:fixed;background:#0d0e10;border:1px solid var(--brd);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--txt);z-index:600;pointer-events:none;display:none;max-width:250px;line-height:1.7;box-shadow:0 4px 16px rgba(0,0,0,.6);white-space:nowrap}
+.ov{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--sur);border:2px solid var(--brd);border-radius:12px;padding:15px 20px 13px;min-width:500px;max-width:720px;z-index:400;box-shadow:0 12px 40px rgba(0,0,0,.7);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+.ov.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
+.ovc{position:absolute;top:9px;right:11px;background:none;border:none;color:var(--mut);font-size:17px;cursor:pointer;padding:2px 6px;border-radius:4px}
+.ovc:hover{color:var(--txt);background:var(--sur2)}
+.ovt{display:flex;align-items:center;gap:11px;margin-bottom:9px}
+.ovrz{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800}
+.kbig{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;padding:2px 10px;border-radius:4px}
+.kbig.cN{background:var(--n);color:#000}.kbig.cP{background:var(--p);color:#fff}.kbig.cS{background:var(--s);color:#fff}
+.kbig.cX{background:var(--sur2);color:var(--mut);border:1px solid var(--brd);font-size:12px}
+.ovact{margin-left:auto;display:flex;gap:7px}
+.ovf{display:flex;gap:16px;flex-wrap:wrap;border-top:1px solid var(--brd);padding-top:9px}
+.ovfl .lb{font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.ovfl .vl{font-size:12px;color:var(--txt)}.ovfl .vl.m{font-family:monospace}
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:700}
+.mbg.open{display:flex}
+.modal{background:var(--sur);border:2px solid var(--brd);border-radius:12px;padding:24px;width:480px;max-width:95vw}
+.modal h2{font-family:'Barlow Condensed',sans-serif;font-size:21px;font-weight:800;margin-bottom:16px}
+.fg{margin-bottom:12px}.fg label{display:block;font-size:11px;color:var(--mut);margin-bottom:4px;font-weight:600;letter-spacing:.4px}
+.fg input,.fg select{width:100%;background:var(--bg);border:1.5px solid var(--brd);border-radius:6px;color:var(--txt);padding:7px 10px;font-size:13px;font-family:'Barlow',sans-serif}
+.fg select option{background:var(--sur)}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.pbb{background:var(--bg);border:1.5px solid var(--brd);border-radius:6px;padding:9px}
+.pbr{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+.pbr label{font-size:11px;color:var(--mut);width:65px;flex-shrink:0}
+.pbr select,.pbr input{flex:1;background:var(--bg);border:1.5px solid var(--brd);border-radius:6px;color:var(--txt);padding:7px 10px;font-size:13px;font-family:'Barlow',sans-serif}
+.pbp{text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;padding:5px;border-top:1px solid var(--brd);margin-top:5px}
+.mft{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.toast{position:fixed;bottom:85px;left:50%;transform:translateX(-50%);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;padding:10px 22px;border-radius:8px;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.5);pointer-events:none;white-space:nowrap;opacity:0;transition:opacity .3s}
+.toast.show{opacity:1}
+.sync{font-size:11px;padding:3px 8px;border-radius:4px;margin-left:6px;font-weight:600;font-family:'Barlow Condensed',sans-serif}
+.sync.ok{background:#166534;color:#86efac}
+.sync.err{background:#7f1d1d;color:#fca5a5}
+.sync.load{background:#1e3a5f;color:#93c5fd}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--brd);border-radius:3px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">AUTO HÁJEK <em>Tuklaty / Správa klíčů</em><span class="sync load" id="syncBadge">⟳ Načítám…</span></div>
+  <div class="sw">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input id="si" type="text" placeholder="Hledat RZ / VIN / zákazník…" autocomplete="off">
+    <div class="drop" id="drop"></div>
+  </div>
+  <div class="hbtns">
+    <button class="btn bg" onclick="doSync()" title="Načíst data z Dropboxu">⟳ Sync</button>
+    <button class="btn bg" onclick="doExport()">📥 CSV</button>
+    <button class="btn bg" onclick="doReset()" title="Obnovit výchozí data">↺ Reset</button>
+    <button class="btn bp" onclick="openAdd()">+ Přidat</button>
+  </div>
+</header>
+
+<div class="main">
+  <div class="stats" id="stats"></div>
+  <div class="cabs" id="cabs"></div>
+</div>
+
+<div class="ov" id="ov">
+  <button class="ovc" onclick="hideOv()">✕</button>
+  <div id="ovContent"></div>
+</div>
+
+<div class="tip" id="tip"></div>
+<div class="toast" id="toast"></div>
+
+<div class="mbg" id="mbg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h2 id="mTitle">Přidat vozidlo</h2>
+    <div class="fg"><label>RZ *</label><input id="mRZ"></div>
+    <div class="fg2">
+      <div class="fg"><label>VIN / Popis</label><input id="mVIN"></div>
+      <div class="fg"><label>Zákazník</label><input id="mCust"></div>
+    </div>
+    <div class="fg2">
+      <div class="fg"><label>Lokace v areálu</label><input id="mLoc"></div>
+      <div class="fg"><label>STK</label><input id="mSTK" type="date"></div>
+    </div>
+    <div class="fg"><label>Poznámka</label><input id="mNote"></div>
+    <div class="pbb">
+      <div class="pbr">
+        <label>Skříňka</label>
+        <select id="mCab" onchange="togglePos();updPrev()">
+          <option value="">— jiná pozice —</option>
+          <option value="N">N — Nová</option>
+          <option value="P">P — Přívěsy / Osobní</option>
+          <option value="S">S — Servisní</option>
+        </select>
+      </div>
+      <div id="posRow" class="pbr">
+        <label>Řada / Háček</label>
+        <select id="mRow" onchange="updPrev()" style="width:60px;flex:none">
+          <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option>
+        </select>
+        <select id="mHook" onchange="updPrev()" style="width:60px;flex:none">
+          <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+          <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+        </select>
+      </div>
+      <div id="altRow" class="pbr" style="display:none">
+        <label>Pozice</label>
+        <input id="mAlt" placeholder="u zakázky, řidič ve vozidle…">
+      </div>
+      <div class="pbp" id="prev" style="color:var(--mut)">—</div>
+    </div>
+    <div class="mft">
+      <button class="btn bdel" id="mDelBtn" onclick="delV()" style="margin-right:auto;display:none">Smazat</button>
+      <button class="btn bg" onclick="closeModal()">Zrušit</button>
+      <button class="btn bsv" onclick="saveV()">Uložit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// AUTO HÁJEK — Správa klíčů (Dropbox backend)
+// ═══════════════════════════════════════════════════════════
+
+// ── Dropbox credentials ────────────────────────────────
+var DBX_APP_KEY    = 'b0aiyxhydnc0vum';
+var DBX_APP_SECRET = 'b78w0cwaaxdqepq';
+var DBX_REFRESH    = 'kbP2HpEjyuQAAAAAAAAAAf3M0aTlvrMsFY_GKFB9b5I-GKT85eLstW6c78Cf06qq';
+var DBX_FILE       = '/klice.json';
+var dbxToken       = '';
+
+// ── Config ─────────────────────────────────────────────
+var CABS = [
+  {id:'N',label:'Nová',color:'#f59e0b',bg:'#1d1800',brd:'#6b4200'},
+  {id:'P',label:'Přívěsy / Osobní',color:'#3b82f6',bg:'#0a1220',brd:'#1a3870'},
+  {id:'S',label:'Servisní',color:'#ef4444',bg:'#1a0808',brd:'#6a1818'}
+];
+var ROWS = ['A','B','C','D','E'];
+var HOOKS = 10;
+var KEY_SVG = '<svg class="ksv" viewBox="0 0 24 24"><path class="kfill" d="M12.65 10A6 6 0 1 0 12.65 14H17l1 1 1-1 1 1 3-3-1-1h-5.35A6 6 0 0 0 12.65 10zM7 14a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>';
+
+var INITIAL = [{"rz":"1ABC599","location":"Vzadu v rohu","keys":"","vin":"Hozman","customer":"","stk":"","status":""},{"rz":"1AFZ214","location":"","keys":"NE2","vin":"RB95997","customer":"DEMO F TRUCKS","stk":"","status":""},{"rz":"1AJR339","location":"","keys":"NE4","vin":"SB93205","customer":"DEMO F TRUCKS","stk":"","status":""},{"rz":"1AJR354","location":"","keys":"NE6","vin":"SB93191","customer":"DEMO F TRUCKS","stk":"","status":""},{"rz":"1AJY343","location":"","keys":"PD8","vin":"SB93090","customer":"","stk":"","status":""},{"rz":"1AKE045","location":"","keys":"NE10","vin":"SR94581","customer":"DEMO F TRUCKS","stk":"","status":""},{"rz":"1AKK850","location":"","keys":"NC6","vin":"SR94221","customer":"DEMO F TRUCKS","stk":"","status":""},{"rz":"1ALB471","location":"","keys":"řidič ve vozidle","vin":"NS99028","customer":"MY FRUIT","stk":"","status":""},{"rz":"1ALK362","location":"","keys":"ND8","vin":"SK98376","customer":"DEMO F-TRUCKS","stk":"","status":""},{"rz":"1AMM967","location":"Vzadu v rohu","keys":"","vin":"LUKKESCH","customer":"","stk":"","status":""},{"rz":"1AMX441","location":"","keys":"NE1","vin":"RS97724","customer":"DEMO F TRUCKS","stk":"","status":""},{"rz":"2TB5401","location":"","keys":"PD1","vin":"MC90063","customer":"","stk":"","status":""},{"rz":"2TB5403","location":"","keys":"PE6","vin":"MC90806","customer":"F TRUCKS","stk":"","status":""},{"rz":"2TB5950","location":"","keys":"SB2","vin":"MA97246","customer":"F TRUCKS","stk":"","status":""},{"rz":"2TB7398","location":"","keys":"PE8","vin":"ME94596","customer":"F TRUCKS","stk":"","status":""},{"rz":"2TB7399","location":"","keys":"PE4","vin":"ME94597","customer":"F TRUCKS","stk":"","status":""},{"rz":"2TC6956","location":"","keys":"PD4","vin":"ME94517","customer":"","stk":"","status":""},{"rz":"2TC8178","location":"","keys":"PD2","vin":"NS98464","customer":"","stk":"","status":""},{"rz":"2TC8179","location":"","keys":"PE2","vin":"NS98561","customer":"","stk":"","status":""},{"rz":"2TR3882","location":"","keys":"PD10","vin":"hák PM93090","customer":"","stk":"","status":""},{"rz":"4K82713","location":"","keys":"SE8","vin":"KS97962","customer":"","stk":"","status":""},{"rz":"5SC1388","location":"","keys":"SE10","vin":"KJ98880","customer":"","stk":"","status":""},{"rz":"5SM4523","location":"","keys":"PA6","vin":"NT90513","customer":"","stk":"","status":""},{"rz":"6SR1815","location":"","keys":"SE4","vin":"RK92035","customer":"","stk":"","status":""},{"rz":"6SU1281","location":"","keys":"ND4","vin":"RG90224","customer":"DEMO F TRUCKS 6x4","stk":"","status":""},{"rz":"6SX8194","location":"","keys":"NB3","vin":"SST260133","customer":"KAPLOG s.r.o.","stk":"","status":""},{"rz":"7AH0929","location":"","keys":"SE6","vin":"JB94049","customer":"","stk":"","status":""},{"rz":"7H84151","location":"","keys":"PA4","vin":"MU92005","customer":"","stk":"","status":""},{"rz":"7H84152","location":"","keys":"PC6","vin":"MP94126","customer":"","stk":"","status":""},{"rz":"7H96514","location":"","keys":"PA8","vin":"NJ92246","customer":"","stk":"","status":""},{"rz":"7M55976","location":"","keys":"PB1","vin":"NY97197","customer":"","stk":"","status":""},{"rz":"7M56436","location":"","keys":"PA10","vin":"ME95017","customer":"","stk":"","status":""},{"rz":"7M56883","location":"","keys":"PC2","vin":"NS98484","customer":"","stk":"","status":""},{"rz":"7M61350","location":"","keys":"PC5","vin":"","customer":"","stk":"","status":""},{"rz":"7M71026","location":"","keys":"SE2","vin":"NM95287","customer":"","stk":"","status":""},{"rz":"7M73427","location":"Za dílnou","keys":"","vin":"KJ Fast","customer":"","stk":"","status":""},{"rz":"7SA3037","location":"","keys":"ND6","vin":"","customer":"","stk":"","status":""},{"rz":"7SA3040","location":"","keys":"SB10","vin":"","customer":"","stk":"","status":""},{"rz":"7Z28032","location":"","keys":"PA9","vin":"NU93958","customer":"","stk":"","status":""},{"rz":"7Z28033","location":"","keys":"PA2","vin":"","customer":"","stk":"","status":""},{"rz":"7Z35534","location":"","keys":"PC8","vin":"","customer":"","stk":"","status":""},{"rz":"7Z35535","location":"","keys":"PC4","vin":"","customer":"","stk":"","status":""},{"rz":"7Z35536","location":"","keys":"PB6","vin":"NM94810","customer":"","stk":"","status":""},{"rz":"7Z35685","location":"","keys":"PE2","vin":"","customer":"","stk":"","status":""},{"rz":"7Z35686","location":"","keys":"PE1","vin":"","customer":"","stk":"","status":""},{"rz":"7Z37817","location":"","keys":"PE10","vin":"???","customer":"","stk":"","status":""},{"rz":"7Z37818","location":"","keys":"PD6","vin":"","customer":"","stk":"","status":""},{"rz":"7Z40610","location":"Vzadu v rohu","keys":"","vin":"F Truck","customer":"","stk":"","status":""},{"rz":"7Z40656","location":"Vzadu v rohu","keys":"","vin":"F Truck","customer":"","stk":"","status":""},{"rz":"7Z46740","location":"","keys":"PE9","vin":"NU93664","customer":"","stk":"","status":""},{"rz":"8AF4370","location":"","keys":"PD5","vin":"","customer":"","stk":"","status":""},{"rz":"8AT3175","location":"Vzadu v rohu","keys":"","vin":"AST Coal Trans","customer":"","stk":"","status":""},{"rz":"9AK6191","location":"Vzadu v rohu","keys":"","vin":"Hakspeed","customer":"","stk":"","status":""},{"rz":"9AP9064","location":"Vzadu v rohu","keys":"","vin":"Roza","customer":"","stk":"","status":""},{"rz":"9AT5239","location":"","keys":"NE9","vin":"PK96921","customer":"DEMO F TRUCKS","stk":"","status":""},{"rz":"9AU6073","location":"","keys":"NE8","vin":"PD97213","customer":"DEMO F TRUCKS","stk":"","status":""},{"rz":"9C31033","location":"","keys":"PB3","vin":"","customer":"","stk":"","status":""},{"rz":"9C31033","location":"Vzadu v rohu","keys":"","vin":"MyFruit","customer":"","stk":"","status":""},{"rz":"klíče nádrž neznámé vozidlo","location":"","keys":"NB10","vin":"","customer":"","stk":"","status":""},{"rz":"RS97671","location":"Vzadu v rohu","keys":"","vin":"","customer":"","stk":"","status":""},{"rz":"SA94949","location":"","keys":"ND1","vin":"","customer":"","stk":"","status":""},{"rz":"SA94950","location":"Horní parkoviště","keys":"NE5","vin":"od 12.2.2026","customer":"","stk":"","status":""},{"rz":"SB93083","location":"","keys":"NA2","vin":"","customer":"","stk":"","status":""},{"rz":"SB93263","location":"","keys":"NE1","vin":"SB93263","customer":"DEMO F TRUCKS","stk":"","status":""},{"rz":"SC97177","location":"","keys":"NC8","vin":"","customer":"","stk":"","status":""},{"rz":"SC97178","location":"Vzadu za dílnou","keys":"NC5","vin":"","customer":"","stk":"","status":""},{"rz":"SC97223","location":"Vzadu v rohu","keys":"NC7","vin":"","customer":"","stk":"","status":""},{"rz":"SC97261","location":"Vzadu v rohu","keys":"NC1","vin":"","customer":"","stk":"","status":""},{"rz":"SD99125","location":"","keys":"NA7","vin":"","customer":"","stk":"","status":""},{"rz":"SD99250","location":"","keys":"NB1","vin":"Anexia","customer":"","stk":"","status":""},{"rz":"SD99251","location":"","keys":"NB4","vin":"SST260136","customer":"","stk":"","status":""},{"rz":"SG95995","location":"Horní parkoviště","keys":"NA3","vin":"","customer":"","stk":"","status":""},{"rz":"SK97782","location":"","keys":"NB8","vin":"SK97782","customer":"","stk":"","status":""},{"rz":"SK98376","location":"","keys":"ND8","vin":"","customer":"","stk":"","status":""},{"rz":"SK98380","location":"","keys":"NB6","vin":"SK98380","customer":"","stk":"","status":""},{"rz":"SK98422","location":"","keys":"NC8","vin":"SK98422","customer":"","stk":"","status":""},{"rz":"SK98549","location":"Před dílnou","keys":"NA8","vin":"bez masky","customer":"","stk":"","status":""},{"rz":"SP91890","location":"Vzadu v rohu","keys":"NC2","vin":"8x4","customer":"","stk":"","status":""},{"rz":"SR94224","location":"Před dílnou","keys":"ND10","vin":"","customer":"","stk":"","status":""},{"rz":"SR94226","location":"Před dílnou","keys":"NC4","vin":"","customer":"","stk":"","status":""},{"rz":"SR94259","location":"","keys":"NB2","vin":"","customer":"","stk":"","status":""},{"rz":"SR94325","location":"","keys":"ND3","vin":"","customer":"","stk":"","status":""},{"rz":"SR94326","location":"Před dílnou","keys":"NA6","vin":"","customer":"","stk":"","status":""},{"rz":"SR94328","location":"Před dílnou","keys":"NE7","vin":"od 12.2.2026","customer":"","stk":"","status":""},{"rz":"TL90896","location":"Horní parkoviště","keys":"NA4","vin":"","customer":"","stk":"","status":""},{"rz":"TL90897","location":"Horní parkoviště","keys":"NA1","vin":"","customer":"","stk":"","status":""},{"rz":"TL90953","location":"Před dílnou","keys":"ND2","vin":"","customer":"","stk":"","status":""}];
+
+// ── State ──────────────────────────────────────────────
+var V = [];
+var sIdx = null;
+var eIdx = null;
+var saving = false;
+
+// ═══════════════════════════════════════════════════════
+// DROPBOX API
+// ═══════════════════════════════════════════════════════
+
+async function dbxGetToken() {
+  if (dbxToken) return dbxToken;
+  var resp = await fetch('https://api.dropboxapi.com/oauth2/token', {
+    method: 'POST',
+    headers: {'Content-Type':'application/x-www-form-urlencoded'},
+    body: 'grant_type=refresh_token&refresh_token='+encodeURIComponent(DBX_REFRESH)+
+          '&client_id='+encodeURIComponent(DBX_APP_KEY)+
+          '&client_secret='+encodeURIComponent(DBX_APP_SECRET)
+  });
+  var d = await resp.json();
+  if (!d.access_token) throw new Error('Token error');
+  dbxToken = d.access_token;
+  // Expire token 10 min early
+  setTimeout(function(){ dbxToken=''; }, (d.expires_in - 600) * 1000);
+  return dbxToken;
+}
+
+async function dbxRead() {
+  var token = await dbxGetToken();
+  var resp = await fetch('https://content.dropboxapi.com/2/files/download', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer '+token,
+      'Dropbox-API-Arg': JSON.stringify({path: DBX_FILE})
+    }
+  });
+  if (resp.status === 409) return null; // file not found
+  if (!resp.ok) throw new Error('Dropbox read error: '+resp.status);
+  var text = await resp.text();
+  return JSON.parse(text);
+}
+
+async function dbxWrite(data) {
+  var token = await dbxGetToken();
+  var resp = await fetch('https://content.dropboxapi.com/2/files/upload', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer '+token,
+      'Content-Type': 'application/octet-stream',
+      'Dropbox-API-Arg': JSON.stringify({path: DBX_FILE, mode:'overwrite', mute:true})
+    },
+    body: JSON.stringify(data)
+  });
+  if (!resp.ok) throw new Error('Dropbox write error: '+resp.status);
+}
+
+function setBadge(type, text) {
+  var el = document.getElementById('syncBadge');
+  el.className = 'sync ' + type;
+  el.textContent = text;
+}
+
+// ── Load ───────────────────────────────────────────────
+async function loadData() {
+  setBadge('load', '⟳ Načítám…');
+  try {
+    var data = await dbxRead();
+    if (data && Array.isArray(data) && data.length > 0) {
+      V = data;
+      // Cache locally
+      try { localStorage.setItem('ah_klice_cache', JSON.stringify(V)); } catch(e){}
+      setBadge('ok', '✓ Dropbox OK');
+    } else {
+      // No file on Dropbox yet — upload initial data
+      V = JSON.parse(JSON.stringify(INITIAL));
+      await dbxWrite(V);
+      try { localStorage.setItem('ah_klice_cache', JSON.stringify(V)); } catch(e){}
+      setBadge('ok', '✓ Nová data nahrána');
+    }
+  } catch(e) {
+    console.error('Dropbox load error:', e);
+    // Fallback to local cache
+    try {
+      var cached = localStorage.getItem('ah_klice_cache');
+      if (cached) { V = JSON.parse(cached); }
+      else { V = JSON.parse(JSON.stringify(INITIAL)); }
+    } catch(e2) { V = JSON.parse(JSON.stringify(INITIAL)); }
+    setBadge('err', '✗ Offline režim');
+  }
+  render();
+}
+
+async function saveData() {
+  if (saving) return;
+  saving = true;
+  setBadge('load', '⟳ Ukládám…');
+  try {
+    await dbxWrite(V);
+    try { localStorage.setItem('ah_klice_cache', JSON.stringify(V)); } catch(e){}
+    setBadge('ok', '✓ Uloženo');
+  } catch(e) {
+    console.error('Dropbox save error:', e);
+    try { localStorage.setItem('ah_klice_cache', JSON.stringify(V)); } catch(e2){}
+    setBadge('err', '✗ Chyba ukládání');
+  }
+  saving = false;
+}
+
+async function doSync() {
+  await loadData();
+  toast('✓ Data synchronizována', '#22c55e');
+}
+
+// ── Parse key position ─────────────────────────────────
+function ppos(k) {
+  if (!k) return null;
+  var m = k.trim().match(/^([NPS])([A-E])(\d{1,2})$/i);
+  if (!m) return null;
+  return {cab:m[1].toUpperCase(), row:m[2].toUpperCase(), hook:parseInt(m[3])};
+}
+function cabInfo(id) {
+  for (var i=0;i<CABS.length;i++) if (CABS[i].id===id) return CABS[i];
+  return null;
+}
+
+// ── Render ─────────────────────────────────────────────
+function render() {
+  var pm = {};
+  V.forEach(function(v,i) {
+    var p = ppos(v.keys);
+    if (p) pm[p.cab+p.row+p.hook] = i;
+  });
+  var sN=0,sP=0,sS=0;
+  V.forEach(function(v) {
+    var p = ppos(v.keys);
+    if (p) { if(p.cab==='N')sN++; else if(p.cab==='P')sP++; else sS++; }
+  });
+  document.getElementById('stats').innerHTML =
+    '<div class="sc"><div class="v">'+V.length+'</div><div class="l">Vozidla</div></div>'+
+    '<div class="sc sN"><div class="v">'+sN+'</div><div class="l">Skříňka N</div></div>'+
+    '<div class="sc sP"><div class="v">'+sP+'</div><div class="l">Skříňka P</div></div>'+
+    '<div class="sc sS"><div class="v">'+sS+'</div><div class="l">Skříňka S</div></div>';
+  var cabsHtml = '';
+  CABS.forEach(function(cab) {
+    var cnt = Object.keys(pm).filter(function(k){return k.charAt(0)===cab.id}).length;
+    cabsHtml += '<div class="cab"><div class="chdr"><div class="cl c'+cab.id+'">'+cab.id+'</div><div class="cn">'+cab.label+'</div><div class="cc">'+cnt+' / '+(ROWS.length*HOOKS)+' klíčů</div></div><div class="cbody">';
+    cabsHtml += '<div class="cnums">';
+    for (var h=1;h<=HOOKS;h++) cabsHtml += '<div class="cnum">'+h+'</div>';
+    cabsHtml += '</div>';
+    ROWS.forEach(function(row) {
+      cabsHtml += '<div class="hrow"><div class="rl">'+row+'</div><div class="hooks">';
+      for (var h=1;h<=HOOKS;h++) {
+        var pos = cab.id+row+h;
+        var vi = pm[pos];
+        var occ = vi !== undefined;
+        var cls = 'hook';
+        if (occ) cls += ' occ h'+cab.id;
+        if (sIdx !== null && occ && vi === sIdx) cls += ' lit';
+        cabsHtml += '<div class="'+cls+'" data-p="'+pos+'"'+(occ?' data-i="'+vi+'"':'')+' onmouseenter="sTip(event,'+(occ?vi:-1)+',\''+pos+'\')" onmouseleave="hTip()" onclick="hClick(\''+pos+'\','+(occ?vi:-1)+')">';
+        if (occ) cabsHtml += KEY_SVG+'<div class="dot"></div>';
+        cabsHtml += '<div class="hn">'+h+'</div></div>';
+      }
+      cabsHtml += '</div></div>';
+    });
+    cabsHtml += '</div></div>';
+  });
+  document.getElementById('cabs').innerHTML = cabsHtml;
+  buildDrop();
+  if (sIdx !== null && V[sIdx]) showOv(sIdx);
+}
+
+// ── Search ─────────────────────────────────────────────
+var si = document.getElementById('si');
+var drop = document.getElementById('drop');
+si.addEventListener('input', function() { buildDrop(); drop.classList.add('open'); });
+si.addEventListener('focus', function() { buildDrop(); drop.classList.add('open'); });
+document.addEventListener('click', function(e) {
+  if (!drop.contains(e.target) && e.target !== si) drop.classList.remove('open');
+});
+
+function buildDrop() {
+  var q = si.value.trim().toLowerCase();
+  var items = V.map(function(v,i){return {v:v,i:i}});
+  if (q) {
+    items = items.filter(function(x) {
+      return x.v.rz.toLowerCase().indexOf(q)!==-1 ||
+        (x.v.vin && x.v.vin.toLowerCase().indexOf(q)!==-1) ||
+        (x.v.customer && x.v.customer.toLowerCase().indexOf(q)!==-1);
+    });
+  }
+  items.sort(function(a,b){return a.v.rz.localeCompare(b.v.rz)});
+  if (!items.length) { drop.innerHTML = '<div style="padding:16px;text-align:center;color:var(--mut);font-size:13px">Žádné výsledky</div>'; return; }
+  var html = '';
+  items.forEach(function(x) {
+    var v = x.v;
+    var p = ppos(v.keys);
+    var sub = [v.vin,v.customer].filter(Boolean).join(' · ');
+    var kCls = 'kb ';
+    var kTxt = v.keys || '—';
+    if (p) kCls += 'c'+p.cab; else kCls += 'cX';
+    html += '<div class="di'+(sIdx===x.i?' act':'')+'" data-idx="'+x.i+'" onclick="selectV('+x.i+')"><span class="di-rz">'+v.rz+'</span><span class="di-sub">'+sub+'</span><span class="'+kCls+'">'+kTxt+'</span></div>';
+  });
+  drop.innerHTML = html;
+}
+
+function selectV(i) {
+  sIdx = i;
+  drop.classList.remove('open');
+  showOv(i);
+  var v = V[i];
+  var p = ppos(v.keys);
+  if (p) {
+    var pos = p.cab+p.row+p.hook;
+    var el = document.querySelector('.hook[data-p="'+pos+'"]');
+    if (el) { el.classList.add('lit'); setTimeout(function(){el.classList.remove('lit')},1200); }
+  }
+  render();
+}
+
+function hClick(pos, vi) {
+  if (vi >= 0) selectV(vi); else openAdd(pos);
+}
+
+// ── Tooltip ────────────────────────────────────────────
+var tipEl = document.getElementById('tip');
+function sTip(e, vi, pos) {
+  var rect = e.currentTarget.getBoundingClientRect();
+  tipEl.style.left = (rect.left + rect.width/2) + 'px';
+  tipEl.style.top = (rect.top - 4) + 'px';
+  tipEl.style.transform = 'translate(-50%, -100%)';
+  tipEl.style.display = 'block';
+  if (vi >= 0) {
+    var v = V[vi];
+    var html = '<div style="font-weight:700">'+v.rz+'</div>';
+    if (v.vin) html += '<div style="color:var(--mut);font-size:11px">'+v.vin+'</div>';
+    if (v.customer) html += '<div style="color:var(--mut);font-size:11px">'+v.customer+'</div>';
+    tipEl.innerHTML = html;
+  } else {
+    tipEl.innerHTML = '<span style="color:var(--mut)">'+pos+' — volný háček</span>';
+  }
+}
+function hTip() { tipEl.style.display = 'none'; }
+
+// ── Overlay ────────────────────────────────────────────
+function showOv(i) {
+  sIdx = i;
+  var v = V[i];
+  var p = ppos(v.keys);
+  var c = p ? cabInfo(p.cab) : null;
+  var kCls = c ? 'kbig c'+p.cab : 'kbig cX';
+  var kTxt = p ? v.keys : (v.keys||'—');
+  var html = '<div class="ovt"><span class="ovrz">'+v.rz+'</span><span class="'+kCls+'">'+kTxt+'</span>';
+  html += '<div class="ovact"><button class="btn bg bsm" onclick="openEdit('+i+')">✏️ Upravit</button>';
+  html += '<button class="btn bdel bsm" onclick="eIdx='+i+';delV()">🗑️</button></div></div>';
+  html += '<div class="ovf">';
+  if (v.vin) html += '<div class="ovfl"><div class="lb">VIN / Popis</div><div class="vl m">'+v.vin+'</div></div>';
+  if (v.customer) html += '<div class="ovfl"><div class="lb">Zákazník</div><div class="vl">'+v.customer+'</div></div>';
+  if (v.location) html += '<div class="ovfl"><div class="lb">Lokace</div><div class="vl">'+v.location+'</div></div>';
+  if (v.stk) html += '<div class="ovfl"><div class="lb">STK</div><div class="vl">'+v.stk+'</div></div>';
+  if (v.status) html += '<div class="ovfl"><div class="lb">Poznámka</div><div class="vl">'+v.status+'</div></div>';
+  html += '</div>';
+  document.getElementById('ovContent').innerHTML = html;
+  document.getElementById('ov').classList.add('show');
+}
+function hideOv() { document.getElementById('ov').classList.remove('show'); sIdx=null; render(); }
+
+// ── Modal ──────────────────────────────────────────────
+function openAdd(prePos) {
+  eIdx = null;
+  document.getElementById('mTitle').textContent = 'Přidat vozidlo';
+  document.getElementById('mDelBtn').style.display = 'none';
+  clrForm();
+  if (prePos) {
+    var p = ppos(prePos);
+    if (p) {
+      document.getElementById('mCab').value = p.cab;
+      document.getElementById('mRow').value = p.row;
+      document.getElementById('mHook').value = p.hook;
+    }
+  }
+  togglePos(); updPrev();
+  document.getElementById('mbg').classList.add('open');
+}
+function openEdit(i) {
+  eIdx = i;
+  var v = V[i];
+  document.getElementById('mTitle').textContent = 'Upravit ' + v.rz;
+  document.getElementById('mDelBtn').style.display = '';
+  document.getElementById('mRZ').value = v.rz;
+  document.getElementById('mVIN').value = v.vin||'';
+  document.getElementById('mCust').value = v.customer||'';
+  document.getElementById('mLoc').value = v.location||'';
+  document.getElementById('mSTK').value = v.stk||'';
+  document.getElementById('mNote').value = v.status||'';
+  document.getElementById('mAlt').value = '';
+  var p = ppos(v.keys);
+  if (p) {
+    document.getElementById('mCab').value = p.cab;
+    document.getElementById('mRow').value = p.row;
+    document.getElementById('mHook').value = p.hook;
+  } else {
+    document.getElementById('mCab').value = '';
+    document.getElementById('mAlt').value = v.keys||'';
+  }
+  togglePos(); updPrev();
+  document.getElementById('mbg').classList.add('open');
+}
+function closeModal() { document.getElementById('mbg').classList.remove('open'); }
+function clrForm() {
+  ['mRZ','mVIN','mCust','mLoc','mSTK','mNote','mAlt'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('mCab').value=''; document.getElementById('mRow').value='A'; document.getElementById('mHook').value='1';
+}
+function togglePos() {
+  var hasCab = !!document.getElementById('mCab').value;
+  document.getElementById('posRow').style.display = hasCab ? '' : 'none';
+  document.getElementById('altRow').style.display = hasCab ? 'none' : '';
+}
+function updPrev() {
+  var cab = document.getElementById('mCab').value;
+  var el = document.getElementById('prev');
+  if (cab) {
+    var c = cabInfo(cab);
+    el.textContent = cab + document.getElementById('mRow').value + document.getElementById('mHook').value;
+    el.style.color = c ? c.color : 'var(--mut)';
+  } else {
+    el.textContent = '—'; el.style.color = 'var(--mut)';
+  }
+}
+function saveV() {
+  var rz = document.getElementById('mRZ').value.trim().toUpperCase();
+  if (!rz) { alert('RZ je povinné'); return; }
+  var cab = document.getElementById('mCab').value;
+  var keys = cab
+    ? cab+document.getElementById('mRow').value+document.getElementById('mHook').value
+    : document.getElementById('mAlt').value.trim();
+  var v = {
+    rz: rz,
+    vin: document.getElementById('mVIN').value.trim(),
+    customer: document.getElementById('mCust').value.trim(),
+    location: document.getElementById('mLoc').value.trim(),
+    stk: document.getElementById('mSTK').value.trim(),
+    status: document.getElementById('mNote').value.trim(),
+    keys: keys
+  };
+  if (eIdx !== null) V[eIdx] = v; else V.push(v);
+  saveData();
+  closeModal(); hideOv();
+  toast('✓ ' + rz + (eIdx!==null?' uloženo':' přidáno'), '#22c55e');
+  render();
+}
+function delV() {
+  if (eIdx === null) return;
+  if (!confirm('Smazat ' + V[eIdx].rz + '?')) return;
+  var rz = V[eIdx].rz;
+  V.splice(eIdx, 1); eIdx = null; sIdx = null;
+  saveData();
+  closeModal(); hideOv();
+  toast('✗ ' + rz + ' smazáno', '#ef4444');
+  render();
+}
+
+// ── Export CSV ──────────────────────────────────────────
+function doExport() {
+  var header = 'RZ;Lokace;Klíče;VIN;Zákazník;STK;Status\n';
+  var rows = V.map(function(v){
+    return [v.rz,v.location,v.keys,v.vin,v.customer,v.stk,v.status].join(';');
+  }).join('\n');
+  var blob = new Blob(['\uFEFF'+header+rows], {type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'AutoHajek_Klice_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('✓ CSV export stažen','#22c55e');
+}
+
+// ── Reset ──────────────────────────────────────────────
+async function doReset() {
+  if (!confirm('Opravdu obnovit výchozí data? Všechny změny budou ztraceny.')) return;
+  V = JSON.parse(JSON.stringify(INITIAL));
+  await saveData();
+  sIdx=null; hideOv();
+  toast('✓ Data obnovena','#3b82f6');
+  render();
+}
+
+// ── Toast ──────────────────────────────────────────────
+var toastTimer = null;
+function toast(msg, bg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.background = bg;
+  el.style.color = bg==='#22c55e'?'#000':'#fff';
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 3000);
+}
+
+// ── Init ───────────────────────────────────────────────
+loadData();
+</script>
+
+</body>
+</html>
