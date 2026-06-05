@@ -1,7 +1,7 @@
 // Auto Hájek · Garance PWA — Service Worker
 // Cachuje všechny potřebné soubory pro offline režim
 
-const CACHE_NAME = 'garance-v12';
+const CACHE_NAME = 'garance-v13';
 const FILES_TO_CACHE = [
   './',
   './index.html',
