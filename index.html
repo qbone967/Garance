@@ -864,7 +864,7 @@
     <!-- 5 · FOTO 3 VADA -->
     <div class="slide" data-duration="12000">
       <div class="eyebrow">04 · Foto 3 z 5</div>
-      <h1 class="title">03 · <em>Vada na voze</em></h1>
+      <h1 class="title">03 · <em>Vada na vozidle</em></h1>
       <div class="photo-frame">
         <span class="corner tl"></span><span class="corner tr"></span>
         <span class="corner bl"></span><span class="corner br"></span>
@@ -902,7 +902,7 @@
       </div>
       <div class="specs">
         <div class="spec-row ok"><span class="k">✓</span><span class="v">Detail vady + kontext (kde je díl umístěn).</span></div>
-        <div class="spec-row"><span class="k">+</span><span class="v">Pokud elektro: foto obrazovky z <strong>FODIT</strong> s viditelným <strong>DATEM</strong> a <strong>ČASEM</strong>.</span></div>
+        <div class="spec-row"><span class="k">+</span><span class="v">Pokud elektro: <strong>PRINTSCREEN!</strong> z <strong>FODIT</strong> s viditelným <strong>DATEM</strong> a <strong>ČASEM</strong>.</span></div>
       </div>
     </div>
 
@@ -1287,6 +1287,13 @@
       navigator.serviceWorker.register('service-worker.js')
         .then(reg => console.log('SW registered:', reg.scope))
         .catch(err => console.log('SW registration failed:', err));
+    });
+    // Auto-reload when a new SW takes control (occurs after skipWaiting + claim)
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshing) return;
+      refreshing = true;
+      window.location.reload();
     });
   }
 </script>
