@@ -348,70 +348,93 @@
     flex-shrink: 0;
   }
   .gar-label {
-    width: 250px;
-    background: #FFD6DC;
+    width: 270px;
+    background: #fff;
     color: #1a1a1a;
-    border: 2px solid #c41e2f;
-    padding: 10px 12px;
+    padding: 16px 18px 14px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
     position: relative;
-    transform: rotate(-1.5deg);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    border-radius: 4px;
   }
-  .gar-label::before {
-    content: '';
-    position: absolute;
-    top: -6px; left: 10px; right: 10px;
-    height: 6px;
-    background: repeating-linear-gradient(45deg, #c41e2f, #c41e2f 4px, transparent 4px, transparent 8px);
-    opacity: 0.5;
+  .gar-label .brand {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .gar-label .brand .name {
+    font-weight: 900;
+    font-size: 17px;
+    letter-spacing: 0.04em;
+    color: #0a3a8c;
+  }
+  .gar-label .brand .sub {
+    font-size: 8px;
+    color: #ec6a2e;
+    margin-top: 1px;
+  }
+  .gar-label .rule {
+    height: 2px;
+    background: #0a3a8c;
+    margin: 6px 0 10px;
   }
   .gar-label h3 {
-    font-family: 'Arial Narrow', 'Helvetica Neue Condensed', 'Impact', system-ui, sans-serif;
-    font-weight: 900;
-    font-size: 18px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border-bottom: 1px solid #c41e2f;
-    padding-bottom: 4px;
-    margin-bottom: 6px;
-    color: #c41e2f;
+    font-weight: 800;
+    font-size: 15px;
+    text-align: center;
+    color: #0a3a8c;
+    margin-bottom: 8px;
   }
   .gar-label .field {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    font-size: 9.5px;
-    padding: 3px 0;
-    border-bottom: 1px dotted rgba(196,30,47,0.3);
+    font-size: 9px;
+    padding: 5px 0;
+    border-bottom: 1px solid #ddd;
     gap: 8px;
   }
   .gar-label .field:last-child { border-bottom: none; }
-  .gar-label .field .lbl { color: #666; text-transform: uppercase; letter-spacing: 0.05em; flex-shrink: 0; }
-  .gar-label .field .val {
-    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-    font-weight: 700;
-    color: #1a1a1a;
-    text-align: right;
-  }
+  .gar-label .field .lbl { color: #1a1a1a; font-weight: 700; flex-shrink: 0; }
   .gar-label .field .val.hand {
     font-family: 'Bradley Hand', 'Snell Roundhand', 'Segoe Script', cursive;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 500;
-    font-style: italic;
     color: #0055A4;
-    transform: rotate(-1deg);
+    transform: rotate(-1.5deg);
     display: inline-block;
   }
   .gar-label .field .val.sig {
     font-family: 'Bradley Hand', 'Snell Roundhand', 'Segoe Script', cursive;
     font-size: 16px;
     font-weight: 700;
-    font-style: italic;
     color: #0055A4;
     letter-spacing: -0.02em;
     transform: rotate(-2deg) skewX(-4deg);
     display: inline-block;
+  }
+  .gar-label .ford {
+    position: absolute;
+    bottom: 10px;
+    right: 14px;
+    text-align: center;
+  }
+  .gar-label .ford .oval {
+    border: 1.5px solid #0a3a8c;
+    border-radius: 50%;
+    color: #0a3a8c;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 9px;
+    padding: 1px 8px;
+  }
+  .gar-label .ford .trucks {
+    background: #ec6a2e;
+    color: #fff;
+    font-weight: 800;
+    font-size: 7px;
+    letter-spacing: 0.1em;
+    padding: 1px 6px;
+    margin-top: 2px;
   }
 
   /* === Pracovní výkaz === */
@@ -1054,13 +1077,22 @@
       <h1 class="title">Starý ND →<br><em>garanční štítek.</em></h1>
       <div class="label-demo">
         <div class="gar-label">
+          <div class="brand">
+            <div class="name">AUTO HÁJEK</div>
+            <div class="sub">autorizovaný servis Ford Trucks</div>
+          </div>
+          <div class="rule"></div>
           <h3>Garanční štítek</h3>
-          <div class="field"><span class="lbl">Zakázka č.</span><span class="val">FT-26XXXX</span></div>
-          <div class="field"><span class="lbl">VIN</span><span class="val">...NL96044</span></div>
-          <div class="field"><span class="lbl">Číslo ND</span><span class="val">T228789</span></div>
-          <div class="field"><span class="lbl">Datum</span><span class="val">19.4.2026</span></div>
-          <div class="field"><span class="lbl">Mechanik</span><span class="val hand">Petr Novák</span></div>
+          <div class="field"><span class="lbl">Číslo zakázky</span><span class="val hand">FT-26XXXX</span></div>
+          <div class="field"><span class="lbl">Číslo dílu</span><span class="val hand">T228789</span></div>
+          <div class="field"><span class="lbl">Datum</span><span class="val hand">19.4.2026</span></div>
+          <div class="field"><span class="lbl">Jméno pracovníka</span><span class="val hand">Petr Novák</span></div>
           <div class="field"><span class="lbl">Podpis</span><span class="val sig">P.Novák</span></div>
+          <div class="field"><span class="lbl">Poř. č. na seznamu skladu</span><span class="val hand">26</span></div>
+          <div class="ford">
+            <div class="oval">Ford</div>
+            <div class="trucks">TRUCKS</div>
+          </div>
         </div>
       </div>
       <div class="specs" style="border-top: none; padding-top: 0;">
