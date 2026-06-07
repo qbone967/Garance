@@ -1317,7 +1317,11 @@
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('service-worker.js')
-        .then(reg => console.log('SW registered:', reg.scope))
+        .then(reg => {
+          console.log('SW registered:', reg.scope);
+          // Vynutit okamžitou kontrolu nové verze při každém otevření apky
+          reg.update();
+        })
         .catch(err => console.log('SW registration failed:', err));
     });
     // Auto-reload when a new SW takes control (occurs after skipWaiting + claim)
