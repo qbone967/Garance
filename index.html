@@ -541,38 +541,55 @@
 
   .table-mini {
     margin: 4px 0 12px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid var(--line);
+    background: #fff;
     border-radius: 3px;
     overflow: hidden;
-    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-    font-size: 10.5px;
+    font-size: 7px;
     flex-shrink: 0;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.3);
   }
+  .table-mini .sheet-title {
+    padding: 10px 10px 6px;
+    text-align: center;
+    font-weight: 800;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #1a1a1a;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+  }
+  .table-mini .tr .pre { color: #1a1a1a; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-weight: 700; }
   .table-mini .th {
     display: grid;
-    grid-template-columns: 1.2fr 1.5fr 1fr 0.4fr;
-    gap: 6px;
-    padding: 8px 10px;
-    background: rgba(255,107,26,0.12);
-    color: var(--orange);
+    grid-template-columns: 0.4fr 1.3fr 1fr 1.3fr 0.4fr 1fr 0.9fr 0.8fr;
+    gap: 4px;
+    padding: 6px 8px;
+    background: #eef1f5;
+    color: #555;
     font-weight: 700;
-    letter-spacing: 0.05em;
-    border-bottom: 1px solid var(--orange);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    border-bottom: 1px solid #ccc;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
   }
   .table-mini .tr {
     display: grid;
-    grid-template-columns: 1.2fr 1.5fr 1fr 0.4fr;
-    gap: 6px;
-    padding: 7px 10px;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-    color: rgba(244,241,236,0.9);
+    grid-template-columns: 0.4fr 1.3fr 1fr 1.3fr 0.4fr 1fr 0.9fr 0.8fr;
+    gap: 4px;
+    padding: 6px 8px;
+    border-bottom: 1px solid #e2e2e2;
+    color: #0055A4;
+    font-family: 'Bradley Hand', 'Snell Roundhand', 'Segoe Script', cursive;
+    font-size: 9px;
+    font-weight: 500;
+    line-height: 1.2;
   }
   .table-mini .tr:last-child { border-bottom: none; }
   .table-mini .tr.highlight {
     background: rgba(74,210,149,0.08);
-    color: var(--green);
   }
+  .table-mini .tr > div:nth-child(1),
+  .table-mini .tr > div:nth-child(5) { color: #1a1a1a; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 9px; }
   .s-dont {
     background: linear-gradient(180deg, var(--navy-deep) 0%, #1a0a0a 100%);
   }
@@ -1110,34 +1127,61 @@
         F Trucks si může <strong>kdykoliv do 240 dní</strong> vyžádat ND na expertizu. Evidence musí být v seznamu dostupná a díl fyzicky k dohledání.
       </p>
       <div class="table-mini">
+        <div class="sheet-title">SEZNAM DÍLŮ V GARANČNÍM SKLADU AUTO HÁJEK</div>
         <div class="th">
-          <div>ZL</div>
-          <div>ZÁKAZNÍK</div>
-          <div>Č. ND</div>
-          <div>KS</div>
+          <div>Poř. č.</div>
+          <div>Číslo zakázky</div>
+          <div>Číslo dílu</div>
+          <div>Stručný popis</div>
+          <div>Ks</div>
+          <div>Uložil: jméno</div>
+          <div>Datum</div>
+          <div>Umístění</div>
         </div>
         <div class="tr">
-          <div>ZDS10145</div>
-          <div>Novotný s.r.o.</div>
-          <div>T228776</div>
           <div>1</div>
+          <div><span class="pre">FT-26</span>0053</div>
+          <div>T284796</div>
+          <div>Táhlo výšky sedačky</div>
+          <div>1</div>
+          <div>Skřivánek</div>
+          <div>14.5.206</div>
+          <div>B1F1</div>
+        </div>
+        <div class="tr">
+          <div>2</div>
+          <div><span class="pre">FT-26</span>0012</div>
+          <div>T353379</div>
+          <div>NOX</div>
+          <div>1</div>
+          <div>Orlík</div>
+          <div>25.04.26</div>
+          <div>B1F1</div>
         </div>
         <div class="tr highlight">
-          <div>ZDS10148</div>
-          <div>Zavadil D.</div>
-          <div>T228789</div>
+          <div>3</div>
+          <div><span class="pre">FT-26</span>0045</div>
+          <div>T468154</div>
+          <div>Hadice klima</div>
           <div>1</div>
+          <div>Orlík</div>
+          <div>13.05.26</div>
+          <div>B1F2</div>
         </div>
         <div class="tr">
-          <div>ZDS10151</div>
-          <div>Malina Vrše</div>
-          <div>29834572</div>
-          <div>2</div>
+          <div>4</div>
+          <div><span class="pre">FT-26</span>0018</div>
+          <div>T417224</div>
+          <div>Hadice klima</div>
+          <div>1</div>
+          <div>Orlík/Souček</div>
+          <div>29.04.26</div>
+          <div>B1F3</div>
         </div>
       </div>
       <div class="specs" style="border-top: none; padding-top: 0;">
         <div class="spec-row"><span class="k">1</span><span class="v">Po nalepení štítku → <strong>zápis do evidenčního seznamu</strong>.</span></div>
-        <div class="spec-row"><span class="k">2</span><span class="v">Minimum: <strong>ZL, zákazník, číslo ND, počet ks</strong>.</span></div>
+        <div class="spec-row"><span class="k">2</span><span class="v">Vyplnit: <strong>poř. č., číslo zakázky, číslo dílu, popis, ks, jméno, datum, umístění</strong>.</span></div>
         <div class="spec-row"><span class="k">3</span><span class="v">Po <strong>240 dnech od proplacení</strong> → odepsat a fyzicky zlikvidovat.</span></div>
         <div class="spec-row warn"><span class="k">!</span><span class="v">Doklady (ZL, foto, faktura) se archivují <strong>10 let</strong>.</span></div>
       </div>
